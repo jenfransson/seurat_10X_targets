@@ -1,0 +1,183 @@
+---
+title: "Analysis of single cell data"
+subtitle: "Data preprocessing and QC"
+editor_options:
+  chunk_output_type: inline
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+author: 'Jennifer Fransson, NBIS'
+format:
+  html:
+    code-fold: true
+    toc: true
+    toc_float:
+      collapsed: true
+    embed-resources: true
+params:
+  dataset: 1
+---
+
+
+```{r, include = FALSE}
+
+knitr::opts_chunk$set(message    = FALSE,
+                      warning    = FALSE)
+
+```
+
+```{r}
+
+library(targets)
+tar_make()
+
+```
+
+```{r esthetics}
+
+library(ggplot2)
+violintheme = theme(axis.text = element_text(size = 8),
+                    plot.title = element_text(size = 10),
+                    axis.title = element_text(size = 8))
+
+```
+
+
+
+# Study description
+
+
+# Original data
+
+
+```{r qc_unfiltered}
+
+obj_orig_meta = tar_read(obj_orig_meta)
+qc_groupby = tar_read(qc_groupby)
+
+```
+
+Original cell counts per sample:
+
+```{r cellcounts_raw, fig.height = 3, fig.width=5}
+
+knitr::kable(as.data.frame(table(obj_orig_meta$orig.ident)), col.names = c("sample","no of cells"))
+
+cellcounts = as.data.frame(table(obj_orig_meta$orig.ident))
+cellcounts$Group = obj_orig_meta[,qc_groupby][match(cellcounts$Var1, obj_orig_meta$orig.ident)]
+ggplot(cellcounts, aes(x = Group, y = Freq)) + geom_jitter(width = 0.1) + lims(y = c(0,NA)) +
+  labs(x = "", y = "Cell count")
+
+```
+
+
+# Quality control and filtering
+
+We use four variables to compare the quality of each sample: Number of unique genes ("nFeature_RNA"), number of UMI counts ("nCounts_RNA"), % of mitochondrial RNA in the sample ("percent.mito") and % of ribosomal RNA in the sample ("percent.ribo"). The quality control metrics are shown for each sample before and after filtering.
+
+```{r qc_filtered}
+tar_read(qc_unfiltered_vln)
+```
+
+
+
+
+```{r topexpressedgenes, fig.width=7, fig.heigt = 5}
+
+tar_read(top_expr_boxplot)
+
+```
+
+
+
+```{r cellcounts_filtered, fig.height = 3, fig.width=5}
+
+obj_filt2_meta = tar_read(obj_filt2_meta)
+
+knitr::kable(as.data.frame(table(obj_filt2_meta$orig.ident)), col.names = c("sample","no of cells"))
+
+cellcounts = as.data.frame(table(obj_filt2_meta$orig.ident))
+cellcounts$Group = obj_filt2_meta[,qc_groupby][
+  match(cellcounts$Var1, obj_filt2_meta$orig.ident)]
+ggplot(cellcounts, aes(x = Group, y = Freq)) +
+  geom_jitter(width = 0.1) +
+  lims(y = c(0,NA)) +
+  labs(x = "", y = "Cell count")
+
+```
+
+
+```{r }
+
+
+
+# ```
+# 
+# 
+# ```{r}
+# 
+# allfeatures = unlist(
+#   lapply(names(alldata@assays),
+#          function(x){
+#            Features(alldata, assay = x)
+#          }))
+# 
+# filt.features = allfeatures[! allfeatures %in% studyparams$qc_excludegenes]
+# if(studyparams$qc_excludemito){
+#   filt.features = filt.features[!grepl(studyparams$qc_mitopattern,
+#                                        filt.features)]
+# }
+# if(studyparams$qc_excluderibo){
+#   filt.features = filt.features[!grepl(studyparams$qc_ribopattern,
+#                                        filt.features)]
+# }
+# 
+# alldata = subset(alldata, 
+#                  features = filt.features)
+# 
+# ```
+# 
+# 
+# # Add cell cycle information
+# 
+# At this step, we estimate the cell cycle activity in each cell based on the Seurat function CellCycleScoring(). If no gene list is provided, the default Seurat gene list will be used.
+# 
+# 
+# ```{r cellcyclescores}
+# 
+# studyparams = getCellCycleLists(studyparams)
+# 
+# alldata = NormalizeData(alldata)
+# 
+# alldata <- CellCycleScoring(object = alldata, 
+#                             g2m.features = studyparams$qc_g2mGenes,
+#                             s.features = studyparams$qc_sGenes)
+# 
+# ```
+# 
+# 
+# ```{r ccplots, fig.height=3, fig.width=7}
+# 
+# VlnPlot(alldata, features = c("S.Score", "G2M.Score"), group.by = "orig.ident",
+#         pt.size = 0) & violintheme
+# 
+# ```
+# 
+# 
+# ```{r}
+# 
+# saveRDS(alldata, paste0(studyparams$saveDir, "02_prefiltered_data.rds"))
+# 
+# ```
+# 
+# # Session Info
+# 
+# ```{r}
+# 
+# showparameters(studyparams)
+
+```
+
+```{r}
+
+sessionInfo()
+
+```
