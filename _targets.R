@@ -14,10 +14,12 @@ library(targets)
 
 # Set target options:
 tar_option_set(
-  packages = c("tibble", "Seurat", "ggplot2", "dplyr", "tidyr"),  # Packages that your targets need for their tasks.
+  packages = c("tibble", "Seurat", "ggplot2", "dplyr", "tidyr","future.apply"),  # Packages that your targets need for their tasks.
   controller = crew::crew_controller_local(workers = 2, seconds_idle = 60),
   trust_timestamps = TRUE
 )
+
+options(future.globals.maxSize= 10^10)
 
 # Run the R scripts in the R/ folder with your custom functions:
 tar_source()
