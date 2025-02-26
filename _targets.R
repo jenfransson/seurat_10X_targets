@@ -98,6 +98,14 @@ c(getparams(),
   tar_target(
     cc_violin,
     plot_CC(obj_cc, qc_groupby)
+  ),
+  tar_target(
+    obj_filt_final,
+    normalizeAndDF(obj_cc, runDF = qc_runDF)
+  ),
+  tar_target(
+    doublet_plots,
+    plotDF(obj_filt_final, DFrun = qc_runDF)
   )
   
   

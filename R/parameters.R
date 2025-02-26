@@ -1,7 +1,7 @@
 getparams = function(){
   list(
   
-    # QC params
+    # Parameters for QC and filtering
     
     tar_target(
       name = qc_groupby,
@@ -42,10 +42,10 @@ getparams = function(){
     tar_target(
       name = qc_genePatternsToRemove,
       command = c("^RP[SL]", "^MT-")
+    ),
+    tar_target(
+      name = qc_runDF,
+      command = FALSE
     )
-    
-    
-    
-    
   )
 }

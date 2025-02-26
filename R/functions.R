@@ -158,3 +158,83 @@ plot_CC = function(obj, group.by){
   VlnPlot(obj, features = c("S.Score", "G2M.Score"), group.by = group.by,
           pt.size = 0) & violintheme()
 }
+
+
+
+normalizeAndDF = function(obj, runDF = TRUE){
+  
+  if(runDF){
+    
+    if(! "expectedCells" %in% colnames(x@meta.data)){
+      stop('For doublet identification to be run, metadata.csv must contain the column "expectedCells", indicating for each sample how many cells were expected based on the number of cells added to the well.')
+    }
+    
+    if(! "gemWell" %in% colnames(obj@meta.data)){
+      obj$gemWell = obj$orig.ident
+    }
+    
+    obj.list = future_lapply(SplitObject(obj, split.by = "gemWell"), function(x){
+      x = FindVariableFeatures(x)
+      x = ScaleData(x, vars.to.regress = c("nFeature_RNA", "percent.mito"))
+      x = RunPCA(x, npcs = 20)
+      x = RunUMAP(x, dims = 1:10)
+      
+      
+      totalExpected = 
+        sum(unique(x@meta.data[,c("orig.ident","expectedCells")])$expectedCells)
+      expProc = c(0.004,0.008,0.016,0.024,0.032,0.04,0.048,0.056,0.064,0.072,0.08)[
+        which.min(abs(totalExpected - c(500,1000,2000,3000,4000,5000,6000,7000,8000,9000,10000)))]
+      
+      sweep.res <- extendedParamSweep(x)
+      sweep.stats <- summarizeSweep(sweep.res, GT = FALSE)
+      bcmvn <- find.pK(sweep.stats)
+      
+      mypK = as.numeric(as.character(bcmvn$pK[
+        which.max(bcmvn$BCmetric)]))
+      x <- doubletFinder(x, pN = 0.25, pK = mypK, nExp = expProc*ncol(x), PCs = 1:10)
+      DF.name = colnames(x@meta.data)[grepl("DF.classification", colnames(x@meta.data))]
+      df_meta = x@meta.data[, DF.name, drop = FALSE]
+      colnames(df_meta) = "DF"
+      
+      x = AddMetaData(x, df_meta)
+      
+      x
+    })
+    
+    dfmetadata = do.call("rbind",lapply(obj.list,function(x){x@meta.data[,"DF",drop = FALSE]}))
+    obj = AddMetaData(obj, dfmetadata)
+    
+    rm(obj.list)
+    
+  }else{
+    obj = AddMetaData(obj, NA, "DF")
+  }
+  
+  
+  
+  obj = FindVariableFeatures(obj)
+  obj = ScaleData(obj, vars.to.regress = c("nFeature_RNA", "percent.mito"))
+  obj = RunPCA(obj, npcs = 20)
+  obj = RunUMAP(obj, dims = 1:10)
+  
+  obj
+}
+
+plotDF = function(obj, group.by, DFrun){
+  if(DFrun){
+    list(
+      dimplot = DimPlot(obj, group.by = "DF"),
+      vlnplot = VlnPlot(obj, "nFeature_RNA", pt.size = 0, split.by = "DF",
+                        group.by = group.by)
+    )
+  }else{
+    list(
+      dimplot = NULL,
+      vlnplot = NULL
+    )
+  }
+}
+
+
+
+

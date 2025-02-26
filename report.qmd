@@ -113,6 +113,11 @@ tar_read(cc_violin)
 
 ```
 
+```{r dfplots, fig.height=3, fig.width=7}
+
+tar_read(doublet_plots)
+
+```
 
 ```{r}
 
