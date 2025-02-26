@@ -107,7 +107,7 @@ c(getparams(),
   ),
   tar_target(
     doublet_plots,
-    plotDF(obj_filt_final, DFrun = qc_runDF)
+    plotDF(obj_filt_final, group.by = qc_groupby, DFrun = qc_runDF)
   )
   
   

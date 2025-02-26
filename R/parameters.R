@@ -49,7 +49,7 @@ getparams = function(){
     ),
     tar_target(
       name = qc_runDF,
-      command = FALSE
+      command = TRUE
     )
   )
 }

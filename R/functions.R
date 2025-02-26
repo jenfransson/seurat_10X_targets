@@ -176,7 +176,7 @@ normalizeAndDF = function(obj, runDF = TRUE){
       obj$gemWell = obj$orig.ident
     }
     
-    obj.list = future_lapply(SplitObject(obj, split.by = "gemWell"), function(x){
+    df.list = future_lapply(SplitObject(obj, split.by = "gemWell"), function(x){
       x = FindVariableFeatures(x)
       x = ScaleData(x, vars.to.regress = c("nFeature_RNA", "percent.mito"))
       x = RunPCA(x, npcs = 20)
@@ -199,15 +199,15 @@ normalizeAndDF = function(obj, runDF = TRUE){
       df_meta = x@meta.data[, DF.name, drop = FALSE]
       colnames(df_meta) = "DF"
       
-      x = AddMetaData(x, df_meta)
+      df_meta
       
-      x
     })
     
-    dfmetadata = do.call("rbind",lapply(obj.list,function(x){x@meta.data[,"DF",drop = FALSE]}))
+    names(df.list) = NULL
+    dfmetadata = do.call("rbind",df.list)
     obj = AddMetaData(obj, dfmetadata)
     
-    rm(obj.list)
+    rm(df.list)
     
   }else{
     obj = AddMetaData(obj, NA, "DF")
