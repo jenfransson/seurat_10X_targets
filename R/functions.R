@@ -188,7 +188,7 @@ normalizeAndDF = function(obj, runDF = TRUE){
       expProc = c(0.004,0.008,0.016,0.024,0.032,0.04,0.048,0.056,0.064,0.072,0.08)[
         which.min(abs(totalExpected - c(500,1000,2000,3000,4000,5000,6000,7000,8000,9000,10000)))]
       
-      sweep.res <- extendedParamSweep(x)
+      sweep.res <- paramSweep(x)
       sweep.stats <- summarizeSweep(sweep.res, GT = FALSE)
       bcmvn <- find.pK(sweep.stats)
       
