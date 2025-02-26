@@ -11,7 +11,7 @@ Metadata for each sample should be provided in data/metadata.csv. This should be
 If doublets should be predicted using DoubletFinder and removed, the metadata table should also contain a column labeled "expectedCells", indicating the number of cells expected based on the number of cells loaded into each GEM well. If multiple samples were loaded into the same GEM well and later demultiplexed using hashtags, the column "gemWell" should also be present, with unique values for each GEM well. Note that the values are not important, as long as they are unique. As an exmple, if samples A and B were loaded into the same GEM well, in proportions expected to give 6 000 and 4 000 cells, respectively, and sample C was prepared in another well with an expected output of 10 000 cells, the metadata table could be as follows:
 
 | Sample | expectedCells | gemWell |
-| --- | --- | --- |
+|---|---|---|
 | SampleA | 6000 | FirstWell |
 | SampleB | 4000 | FirstWell |
 | SampleC | 10000 | SecondWell |
