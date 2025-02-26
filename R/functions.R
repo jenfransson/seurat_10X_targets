@@ -168,7 +168,7 @@ normalizeAndDF = function(obj, runDF = TRUE){
   
   if(runDF){
     
-    if(! "expectedCells" %in% colnames(x@meta.data)){
+    if(! "expectedCells" %in% colnames(obj@meta.data)){
       stop('For doublet identification to be run, metadata.csv must contain the column "expectedCells", indicating for each sample how many cells were expected based on the number of cells added to the well.')
     }
     
