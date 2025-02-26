@@ -111,7 +111,10 @@ remove_genes = function(obj, patterns, genes){
 }
 
 
-checkTopExpressedGenes = function(obj){
+checkTopExpressedGenes = function(obj, maxCellsPerSample = NULL){
+  if(!is.null(maxCellsPerSample)){
+    obj = subset(obj, downsample = maxCellsPerSample)
+  }
   C <- FetchData(obj, assay = "RNA", layer = "counts",
                  Features(obj))
   C <- Matrix::t(C/Matrix::rowSums(C)) * 100

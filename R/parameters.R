@@ -36,6 +36,10 @@ getparams = function(){
       command = 10
     ),
     tar_target(
+      name = qc_maxCellsTopExpr,
+      command = NULL
+    ),
+    tar_target(
       name = qc_genesToRemove,
       command = c("MALAT1")
     ),

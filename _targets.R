@@ -67,7 +67,7 @@ c(getparams(),
   ),
   tar_target(
     top_expr_boxplot,
-    checkTopExpressedGenes(obj_filt)
+    checkTopExpressedGenes(obj_filt, qc_maxCellsTopExpr)
   ),
   tar_target(
     obj_filt_meta,
