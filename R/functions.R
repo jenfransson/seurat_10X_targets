@@ -79,12 +79,35 @@ qc_vln = function(alldata, qc_groupby){
 filter_obj = function(obj, qc_mitoMax, qc_riboMin, qc_nFeatureMin,
                       qc_nCountMax,qc_minCells){
   obj = subset(obj, subset = percent.mito < qc_mitoMax &
-                     percent.ribo > qc_riboMin &
-                     nFeature_RNA > qc_nFeatureMin &
-                     nCount_RNA < qc_nCountMax,
-                   features = rownames(obj)[
-                     Matrix::rowSums(obj@assays$RNA@layers$counts>0) >
-                       qc_minCells])
+                 percent.ribo > qc_riboMin &
+                 nFeature_RNA > qc_nFeatureMin &
+                 nCount_RNA < qc_nCountMax,
+               features = rownames(obj)[
+                 Matrix::rowSums(obj@assays$RNA@layers$counts>0) >
+                   qc_minCells])
+}
+
+
+remove_genes = function(obj, patterns, genes){
+  
+  genes = sapply(genes, function(g){
+    paste0("^",g,"$")
+  })
+  
+  patterns = c(patterns, genes)
+  
+  if(length(patterns)>0){
+    allgenes = unique(unlist(lapply(obj@assays, Features)))
+    
+    toremove = unique(unlist(lapply(patterns, function(pattern){
+      Features(obj)[grepl(pattern,Features(obj))]
+    })))
+    goodfeatures = allgenes[!allgenes %in% toremove]
+    
+    obj = subset(obj, 
+                 features = goodfeatures)
+  }
+  obj
 }
 
 
@@ -106,5 +129,27 @@ checkTopExpressedGenes = function(obj){
   
 }
 
+read_param_file = function(file){
+  if(file.exists(file)){
+    file_contents = read.csv(file, header = FALSE)[,1]
+  }else{
+    file_contents = c()
+  }
+  file_contents
+}
 
+cellCycleScores = function(obj, slist, g2mlist){
+  if(length(slist)==0){
+    slist = Seurat::cc.genes.updated.2019$s.genes
+  }
+  if(length(g2mlist) == 0){
+    g2mlist = Seurat::cc.genes.updated.2019$g2m.genes
+  }
+  
+  obj = NormalizeData(obj)
+  
+  obj <- CellCycleScoring(object = obj, 
+                          g2m.features = g2mlist,
+                          s.features = slist)
+}
 

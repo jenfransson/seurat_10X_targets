@@ -50,8 +50,8 @@ violintheme = theme(axis.text = element_text(size = 8),
 
 ```{r qc_unfiltered}
 
-obj_orig_meta = tar_read(obj_orig_meta)
-qc_groupby = tar_read(qc_groupby)
+tar_load(obj_orig_meta)
+tar_load(qc_groupby)
 
 ```
 
@@ -90,7 +90,7 @@ tar_read(top_expr_boxplot)
 
 ```{r cellcounts_filtered, fig.height = 3, fig.width=5}
 
-obj_filt2_meta = tar_read(obj_filt2_meta)
+tar_load(obj_filt2_meta)
 
 knitr::kable(as.data.frame(table(obj_filt2_meta$orig.ident)), col.names = c("sample","no of cells"))
 
@@ -108,34 +108,8 @@ ggplot(cellcounts, aes(x = Group, y = Freq)) +
 ```{r }
 
 
-
 # ```
-# 
-# 
-# ```{r}
-# 
-# allfeatures = unlist(
-#   lapply(names(alldata@assays),
-#          function(x){
-#            Features(alldata, assay = x)
-#          }))
-# 
-# filt.features = allfeatures[! allfeatures %in% studyparams$qc_excludegenes]
-# if(studyparams$qc_excludemito){
-#   filt.features = filt.features[!grepl(studyparams$qc_mitopattern,
-#                                        filt.features)]
-# }
-# if(studyparams$qc_excluderibo){
-#   filt.features = filt.features[!grepl(studyparams$qc_ribopattern,
-#                                        filt.features)]
-# }
-# 
-# alldata = subset(alldata, 
-#                  features = filt.features)
-# 
-# ```
-# 
-# 
+#
 # # Add cell cycle information
 # 
 # At this step, we estimate the cell cycle activity in each cell based on the Seurat function CellCycleScoring(). If no gene list is provided, the default Seurat gene list will be used.

@@ -72,6 +72,28 @@ c(getparams(),
   tar_target(
     obj_filt_meta,
     obj_filt@meta.data
+  ),
+  tar_target(
+    obj_filt2,
+    remove_genes(obj_filt,patterns = qc_genePatternsToRemove,genes = qc_genesToRemove)
+  ),
+  tar_target(
+    obj_filt2_meta,
+    obj_filt2@meta.data
+  ),
+  tar_target(
+    CC_s_genes,
+    read_param_file("parameters/cc_S_genes.csv"),
+    format = "file"
+  ),
+  tar_target(
+    CC_g2m_genes,
+    read_param_file("parameters/cc_G2M_genes.csv"),
+    format = "file"
+  ),
+  tar_target(
+    obj_cc,
+    cellCycleScores(obj_filt2, slist = CC_s_genes, g2mlist = CC_g2m_genes)
   )
   
 ))
