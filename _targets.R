@@ -94,6 +94,11 @@ c(getparams(),
   tar_target(
     obj_cc,
     cellCycleScores(obj_filt2, slist = CC_s_genes, g2mlist = CC_g2m_genes)
+  ),
+  tar_target(
+    cc_violin,
+    plot_CC(obj_cc, qc_groupby)
   )
+  
   
 ))

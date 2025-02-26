@@ -148,8 +148,13 @@ cellCycleScores = function(obj, slist, g2mlist){
   
   obj = NormalizeData(obj)
   
-  obj <- CellCycleScoring(object = obj, 
+  CellCycleScoring(object = obj, 
                           g2m.features = g2mlist,
                           s.features = slist)
 }
 
+
+plot_CC = function(obj, group.by){
+  VlnPlot(obj, features = c("S.Score", "G2M.Score"), group.by = group.by,
+          pt.size = 0) & violintheme()
+}

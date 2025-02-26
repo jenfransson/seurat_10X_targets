@@ -105,50 +105,14 @@ ggplot(cellcounts, aes(x = Group, y = Freq)) +
 ```
 
 
-```{r }
 
 
-# ```
-#
-# # Add cell cycle information
-# 
-# At this step, we estimate the cell cycle activity in each cell based on the Seurat function CellCycleScoring(). If no gene list is provided, the default Seurat gene list will be used.
-# 
-# 
-# ```{r cellcyclescores}
-# 
-# studyparams = getCellCycleLists(studyparams)
-# 
-# alldata = NormalizeData(alldata)
-# 
-# alldata <- CellCycleScoring(object = alldata, 
-#                             g2m.features = studyparams$qc_g2mGenes,
-#                             s.features = studyparams$qc_sGenes)
-# 
-# ```
-# 
-# 
-# ```{r ccplots, fig.height=3, fig.width=7}
-# 
-# VlnPlot(alldata, features = c("S.Score", "G2M.Score"), group.by = "orig.ident",
-#         pt.size = 0) & violintheme
-# 
-# ```
-# 
-# 
-# ```{r}
-# 
-# saveRDS(alldata, paste0(studyparams$saveDir, "02_prefiltered_data.rds"))
-# 
-# ```
-# 
-# # Session Info
-# 
-# ```{r}
-# 
-# showparameters(studyparams)
+```{r ccplots, fig.height=3, fig.width=7}
+
+tar_read(cc_violin)
 
 ```
+
 
 ```{r}
 
