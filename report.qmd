@@ -120,6 +120,39 @@ tar_read(doublet_plots)
 ```
 
 ```{r}
+tar_load(obj_pca)
+```
+
+
+```{r}
+DimPlot(obj_pca)
+```
+
+```{r}
+VizDimLoadings(obj_pca, dims = 1:4, nfeatures = 20, balanced = TRUE, ncol = 4)
+```
+
+
+```{r}
+ElbowPlot(obj_pca, ndims = 50)
+```
+```{r}
+rm(obj_pca)
+gc()
+```
+
+
+```{r}
+tar_load(obj_pca_umap)
+```
+
+
+```{r}
+DimPlot(obj_pca_umap)
+```
+
+
+```{r}
 
 sessionInfo()
 

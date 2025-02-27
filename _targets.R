@@ -102,13 +102,50 @@ c(getparams(),
     plot_CC(obj_cc, qc_groupby)
   ),
   tar_target(
-    obj_filt_final,
-    normalizeAndDF(obj_cc, runDF = qc_runDF)
+    obj_df,
+    if(qc_runDF){
+      findDoublets(obj_cc)
+    }else{
+      obj_cc
+    }
   ),
   tar_target(
     doublet_plots,
-    plotDF(obj_filt_final, group.by = qc_groupby, DFrun = qc_runDF)
+    if(qc_runDF){
+      plotDF(obj_df, group.by = qc_groupby, DFrun = qc_runDF)
+    }else{
+      obj_cc
+    }
+  ),
+  tar_target(
+    obj_filt_final,
+    if(qc_runDF){
+      removeDoublets(obj_df)
+    }else{
+      obj_cc
+    }
+  ), 
+  tar_target(
+    obj_normalized,
+    if(dimred_sct){
+      SCTransform(obj_filt_final, vars.to.regress = dimred_varstoregress, 
+                  variable.features.n = dimred_nHVG)
+    }else{
+      NormalizeData(obj_filt_final) %>%
+        FindVariableFeatures(nfeatures = dimred_nHVG) %>%
+        ScaleData(vars.to.regress = dimred_varstoregress)
+    }
+  ),
+  tar_target(
+    obj_pca,
+    RunPCA(obj_normalized)
+  ),
+  tar_target(
+    obj_pca_umap,
+    RunUMAP(obj_pca, n.neighbors = dimred_umap_nn,
+            n.components= dimred_umap_ncomp,
+            min.dist = dimred_umap_mindist,
+            dims = dimred_umap_dims)
   )
-  
   
 ))

@@ -50,6 +50,40 @@ getparams = function(){
     tar_target(
       name = qc_runDF,
       command = TRUE
+    ),
+    
+    # Dimensional reduction parameters
+    tar_target(
+      dimred_sct,
+      FALSE
+    ),
+    tar_target(
+      dimred_varstoregress,
+      c("nFeature_RNA")
+    ),
+    tar_target(
+      dimred_nHVG,
+      2000
+      ## Seurat default: 2000
+    ),
+    tar_target(
+      dimred_umap_nn,
+      30
+      ## Seurat default: 30
+    ),
+    tar_target(
+      dimred_umap_ncomp,
+      2
+      ## Seurat default: 2
+    ),
+    tar_target(
+      dimred_umap_mindist,
+      0.3
+      ## Seurat default: 0.3
+    ),
+    tar_target(
+      dimred_umap_dims,
+      1:20
     )
   )
 }

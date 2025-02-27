@@ -164,67 +164,60 @@ plot_CC = function(obj, group.by){
 
 
 
-normalizeAndDF = function(obj, runDF = TRUE){
+findDoublets = function(obj){
   
-  if(runDF){
-    
-    if(! "expectedCells" %in% colnames(obj@meta.data)){
-      stop('For doublet identification to be run, metadata.csv must contain the column "expectedCells", indicating for each sample how many cells were expected based on the number of cells added to the well.')
-    }
-    
-    if(! "gemWell" %in% colnames(obj@meta.data)){
-      obj$gemWell = obj$orig.ident
-    }
-    
-    df.list = future_lapply(SplitObject(obj, split.by = "gemWell"), function(x){
-      x = FindVariableFeatures(x)
-      x = ScaleData(x, vars.to.regress = c("nFeature_RNA", "percent.mito"))
-      x = RunPCA(x, npcs = 20)
-      x = RunUMAP(x, dims = 1:10)
-      
-      
-      totalExpected = 
-        sum(unique(x@meta.data[,c("orig.ident","expectedCells")])$expectedCells)
-      expProc = c(0.004,0.008,0.016,0.024,0.032,0.04,0.048,0.056,0.064,0.072,0.08)[
-        which.min(abs(totalExpected - c(500,1000,2000,3000,4000,5000,6000,7000,8000,9000,10000)))]
-      
-      sweep.res <- paramSweep(x)
-      sweep.stats <- summarizeSweep(sweep.res, GT = FALSE)
-      bcmvn <- find.pK(sweep.stats)
-      
-      mypK = as.numeric(as.character(bcmvn$pK[
-        which.max(bcmvn$BCmetric)]))
-      x <- doubletFinder(x, pN = 0.25, pK = mypK, nExp = expProc*ncol(x), PCs = 1:10)
-      DF.name = colnames(x@meta.data)[grepl("DF.classification", colnames(x@meta.data))]
-      df_meta = x@meta.data[, DF.name, drop = FALSE]
-      colnames(df_meta) = "DF"
-      
-      df_meta
-      
-    })
-    
-    names(df.list) = NULL
-    dfmetadata = do.call("rbind",df.list)
-    obj = AddMetaData(obj, dfmetadata)
-    
-    rm(df.list)
-    
-  }else{
-    obj = AddMetaData(obj, NA, "DF")
+  if(! "expectedCells" %in% colnames(obj@meta.data)){
+    stop('For doublet identification to be run, metadata.csv must contain the column "expectedCells", indicating for each sample how many cells were expected based on the number of cells added to the well.')
   }
   
+  if(! "gemWell" %in% colnames(obj@meta.data)){
+    obj$gemWell = obj$orig.ident
+  }
   
+  df.list = future_lapply(SplitObject(obj, split.by = "gemWell"), function(x){
+    x = FindVariableFeatures(x)
+    x = ScaleData(x, vars.to.regress = c("nFeature_RNA", "percent.mito"))
+    x = RunPCA(x, npcs = 20)
+    x = RunUMAP(x, dims = 1:10)
+    
+    
+    totalExpected = 
+      sum(unique(x@meta.data[,c("orig.ident","expectedCells")])$expectedCells)
+    expProc = c(0.004,0.008,0.016,0.024,0.032,0.04,0.048,0.056,0.064,0.072,0.08)[
+      which.min(abs(totalExpected - c(500,1000,2000,3000,4000,5000,6000,7000,8000,9000,10000)))]
+    
+    sweep.res <- paramSweep(x)
+    sweep.stats <- summarizeSweep(sweep.res, GT = FALSE)
+    bcmvn <- find.pK(sweep.stats)
+    
+    mypK = as.numeric(as.character(bcmvn$pK[
+      which.max(bcmvn$BCmetric)]))
+    x <- doubletFinder(x, pN = 0.25, pK = mypK, nExp = expProc*ncol(x), PCs = 1:10)
+    DF.name = colnames(x@meta.data)[grepl("DF.classification", colnames(x@meta.data))]
+    df_meta = x@meta.data[, DF.name, drop = FALSE]
+    colnames(df_meta) = "DF"
+    
+    df_meta
+    
+  })
   
-  obj = FindVariableFeatures(obj)
-  obj = ScaleData(obj, vars.to.regress = c("nFeature_RNA", "percent.mito"))
-  obj = RunPCA(obj, npcs = 20)
-  obj = RunUMAP(obj, dims = 1:10)
+  names(df.list) = NULL
+  dfmetadata = do.call("rbind",df.list)
+  obj = AddMetaData(obj, dfmetadata)
   
+  rm(df.list)
+    
   obj
 }
 
 plotDF = function(obj, group.by, DFrun){
   if(DFrun){
+    
+    obj = FindVariableFeatures(obj)
+    obj = ScaleData(obj, vars.to.regress = c("nFeature_RNA", "percent.mito"))
+    obj = RunPCA(obj, npcs = 20)
+    obj = RunUMAP(obj, dims = 1:10)
+    
     list(
       dimplot = DimPlot(obj, group.by = "DF"),
       vlnplot = VlnPlot(obj, "nFeature_RNA", pt.size = 0, split.by = "DF",
@@ -236,6 +229,11 @@ plotDF = function(obj, group.by, DFrun){
       vlnplot = NULL
     )
   }
+}
+
+
+removeDoublets = function(obj){
+  subset(obj, subset = DF != "Doublet")
 }
 
 
