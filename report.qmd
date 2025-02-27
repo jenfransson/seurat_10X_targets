@@ -26,6 +26,7 @@ knitr::opts_chunk$set(message    = FALSE,
 
 ```{r}
 
+library(Seurat)
 library(targets)
 tar_make_future()
 
@@ -120,37 +121,41 @@ tar_read(doublet_plots)
 ```
 
 ```{r}
-tar_load(obj_pca)
-```
-
-
-```{r}
-DimPlot(obj_pca)
-```
-
-```{r}
-VizDimLoadings(obj_pca, dims = 1:4, nfeatures = 20, balanced = TRUE, ncol = 4)
-```
-
-
-```{r}
-ElbowPlot(obj_pca, ndims = 50)
-```
-```{r}
-rm(obj_pca)
-gc()
-```
-
-
-```{r}
 tar_load(obj_pca_umap)
 ```
 
 
 ```{r}
-DimPlot(obj_pca_umap)
+DimPlot(obj_pca_umap, reduction = "pca", shuffle = TRUE)
 ```
 
+```{r}
+VizDimLoadings(obj_pca_umap, dims = 1:4, nfeatures = 20, balanced = TRUE, ncol = 4)
+```
+
+
+```{r}
+ElbowPlot(obj_pca_umap, ndims = 50)
+```
+
+
+
+```{r}
+DimPlot(obj_pca_umap, shuffle = TRUE)
+```
+
+
+# Workflow warnings
+
+```{r}
+
+knitr::kable(targets::tar_meta(fields = warnings, complete_only = TRUE))
+
+```
+
+
+
+# Session info
 
 ```{r}
 
