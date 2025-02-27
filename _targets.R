@@ -56,7 +56,11 @@ c(getparams(),
   
   tar_target(
     name = qc_unfiltered_vln,
-    command = qc_vln(obj_orig, qc_groupby = qc_groupby)
+    command = qc_vln(obj_orig, qc_groupby = qc_groupby, 
+                     thresholds = list(percent.mito = qc_mitoMax,
+                                       percent.ribo = qc_riboMin,
+                                       nFeature_RNA = qc_nFeatureMin,
+                                       nCount_RNA = qc_nCountMax))
   ),
   tar_target(
     name = obj_filt,

@@ -24,7 +24,7 @@ knitr::opts_chunk$set(message    = FALSE,
 
 ```
 
-```{r}
+```{r, results = FALSE}
 
 library(Seurat)
 library(targets)
