@@ -1,0 +1,6 @@
+project:
+  render:
+    - "*.qmd"
+
+metadata-files:
+  - _metadata.yml
