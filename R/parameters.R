@@ -1,6 +1,12 @@
 getparams = function(){
   list(
   
+    # Parameters for loading data
+    tar_target(
+      load_joinlayers,
+      FALSE
+    ),
+    
     # Parameters for QC and filtering
     
     tar_target(

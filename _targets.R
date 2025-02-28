@@ -45,7 +45,7 @@ c(getparams(),
   ),
   tar_target(
     name = obj_orig,
-    command = load_h5(data_list, metadata, 
+    command = load_h5(data_list, metadata, join_layers = load_joinlayers,
                       qc_mitopattern = qc_mitopattern, 
                       qc_ribopattern = qc_ribopattern)
   ),

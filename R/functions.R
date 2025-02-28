@@ -93,12 +93,15 @@ qc_vln = function(alldata, qc_groupby, thresholds = list()){
 
 filter_obj = function(obj, qc_mitoMax, qc_riboMin, qc_nFeatureMin,
                       qc_nCountMax,qc_minCells){
+  
+  em = FetchData(obj, Features(obj))>0
+  
   obj = subset(obj, subset = percent.mito < qc_mitoMax &
                  percent.ribo > qc_riboMin &
                  nFeature_RNA > qc_nFeatureMin &
                  nCount_RNA < qc_nCountMax,
                features = rownames(obj)[
-                 Matrix::rowSums(obj@assays$RNA@layers$counts>0) >
+                 Matrix::colSums(em) >
                    qc_minCells])
 }
 
@@ -164,13 +167,25 @@ cellCycleScores = function(obj, slist, g2mlist){
     g2mlist = Seurat::cc.genes.updated.2019$g2m.genes
   }
   
-  obj = NormalizeData(obj)
-  
-  CellCycleScoring(object = obj, 
-                          g2m.features = g2mlist,
-                          s.features = slist)
+  if(is.null(obj@assays$RNA@layers$counts)){
+    obj_joined = JoinLayers(obj)
+    
+    obj_joined = runCC(obj_joined, slist, g2mlist)
+    
+    obj = AddMetaData(obj, obj_joined@meta.data)
+  }else{
+    obj = runCC(obj, slist, g2mlist)
+  }
+  obj
 }
 
+runCC = function(obj, slist, g2mlist){
+  obj = NormalizeData(obj)
+  
+  obj = CellCycleScoring(object = obj,
+                         g2m.features = g2mlist,
+                         s.features = slist)
+}
 
 plot_CC = function(obj, group.by){
   VlnPlot(obj, features = c("S.Score", "G2M.Score"), group.by = group.by,
@@ -190,6 +205,7 @@ findDoublets = function(obj){
   }
   
   df.list = future_lapply(SplitObject(obj, split.by = "gemWell"), function(x){
+    x = NormalizeData(x)
     x = FindVariableFeatures(x)
     x = ScaleData(x, vars.to.regress = c("nFeature_RNA", "percent.mito"))
     x = RunPCA(x, npcs = 20)
@@ -228,6 +244,7 @@ findDoublets = function(obj){
 plotDF = function(obj, group.by, DFrun){
   if(DFrun){
     
+    obj = NormalizeData(obj)
     obj = FindVariableFeatures(obj)
     obj = ScaleData(obj, vars.to.regress = c("nFeature_RNA", "percent.mito"))
     obj = RunPCA(obj, npcs = 20)
