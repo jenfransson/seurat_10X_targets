@@ -108,11 +108,7 @@ filter_obj = function(obj, qc_mitoMax, qc_riboMin, qc_nFeatureMin,
 
 remove_genes = function(obj, patterns, genes){
   
-  genes = sapply(genes, function(g){
-    paste0("^",g,"$")
-  })
-  
-  patterns = c(patterns, genes)
+  patterns = collate_gene_patterns(patterns, genes)
   
   if(length(patterns)>0){
     allgenes = unique(unlist(lapply(obj@assays, Features)))
@@ -128,6 +124,14 @@ remove_genes = function(obj, patterns, genes){
   obj
 }
 
+
+collate_gene_patterns = function(patterns, genes){
+  genes = sapply(genes, function(g){
+    paste0("^",g,"$")
+  })
+  
+  c(patterns, genes)
+}
 
 checkTopExpressedGenes = function(obj, maxCellsPerSample = NULL){
   if(!is.null(maxCellsPerSample)){
@@ -267,7 +271,6 @@ plotDF = function(obj, group.by, DFrun){
 removeDoublets = function(obj){
   subset(obj, subset = DF != "Doublet")
 }
-
 
 
 

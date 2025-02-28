@@ -45,6 +45,7 @@ violintheme = theme(axis.text = element_text(size = 8),
 
 # Study description
 
+{{< meta study_description >}}
 
 # Original data
 
@@ -60,10 +61,10 @@ Original cell counts per sample:
 
 ```{r cellcounts_raw, fig.height = 3, fig.width=5}
 
-knitr::kable(as.data.frame(table(obj_orig_meta$orig.ident)), col.names = c("sample","no of cells"))
+knitr::kable(as.data.frame(table(obj_orig_meta[[tar_read(qc_groupby)]])), col.names = c("sample","no of cells"))
 
-cellcounts = as.data.frame(table(obj_orig_meta$orig.ident))
-cellcounts$Group = obj_orig_meta[,qc_groupby][match(cellcounts$Var1, obj_orig_meta$orig.ident)]
+cellcounts = as.data.frame(table(obj_orig_meta[[tar_read(qc_groupby)]]))
+cellcounts$Group = obj_orig_meta[,qc_groupby][match(cellcounts$Var1, obj_orig_meta[[tar_read(qc_groupby)]])]
 ggplot(cellcounts, aes(x = Group, y = Freq)) + geom_jitter(width = 0.1) + lims(y = c(0,NA)) +
   labs(x = "", y = "Cell count")
 
@@ -72,14 +73,38 @@ ggplot(cellcounts, aes(x = Group, y = Freq)) + geom_jitter(width = 0.1) + lims(y
 
 # Quality control and filtering
 
-We use four variables to compare the quality of each sample: Number of unique genes ("nFeature_RNA"), number of UMI counts ("nCounts_RNA"), % of mitochondrial RNA in the sample ("percent.mito") and % of ribosomal RNA in the sample ("percent.ribo"). The quality control metrics are shown for each sample before and after filtering.
+We use four variables to compare the quality of each sample: Number of unique genes ("nFeature_RNA"), number of UMI counts ("nCounts_RNA"), % of mitochondrial RNA in the sample ("percent.mito") and % of ribosomal RNA in the sample ("percent.ribo"). The quality control metrics are shown for each sample before and after filtering. In the unfiltered data, the dashed lines indicate thresholds that were used to filter the data. The thresholds used were the following:
 
-```{r qc_filtered}
+```{r}
+thresholds = data.frame(
+  Parameter = c("Min number of unique features per cell", "Max number of reads per cell",
+            "Max % mitochondrial reads per cell", "Min % ribosomal reads per cell",
+            "Min number of cells expressing a gene"),
+  Value = c(tar_read(qc_nFeatureMin), tar_read(qc_nCountMax),
+            tar_read(qc_mitoMax), tar_read(qc_riboMin),
+            tar_read(qc_minCells)))
+
+```
+
+
+`r knitr::kable(thresholds)`
+
+```{r qc_unfiltered_plot}
 tar_read(qc_unfiltered_vln)
 ```
 
 
 
+After the first filtering, the distribution of QC variables are as shown:
+
+
+```{r qc_filtered}
+tar_read(qc_filtered_vln)
+```
+
+
+
+In addition to filtering genes based on the number of cells expressing the gene, individual genes can be removed for reasons such as expected technical artefacts. To identify genes that may introduce biases, we visualize the genes with the highest median expression across cells.
 
 ```{r topexpressedgenes, fig.width=7, fig.heigt = 5}
 
@@ -87,26 +112,49 @@ tar_read(top_expr_boxplot)
 
 ```
 
+The removed genes contain the following patterns:
+
+```{r}
 
 
-```{r cellcounts_filtered, fig.height = 3, fig.width=5}
+genes_to_remove = sapply(tar_read(qc_genesToRemove), 
+                         function(g){
+                           paste0("^",g,"$")
+})
+  
+patterns = c(tar_read(qc_genePatternsToRemove), genes_to_remove)
 
-tar_load(obj_filt2_meta)
+if(length(patterns)>0){
+  remove_df = 
+    knitr::kable(data.frame(
+  Pattern = gsub("\\^","", gsub("\\$","",patterns)),
+  Rules = 
+  sapply(patterns, function(x){
+  rules = c()
+  if(substr(x, 1, 1) == "^"){
+    rules = c(rules, "Begins with")
+  }
+  if(substr(x, nchar(x), nchar(x)) == "$"){
+    rules = c(rules, "Ends with")
+  }
+  paste0(rules, collapse = " & ")
+})))
+}else{
+  remove_df = "*No genes were selected for removal*"
+}
 
-knitr::kable(as.data.frame(table(obj_filt2_meta$orig.ident)), col.names = c("sample","no of cells"))
 
-cellcounts = as.data.frame(table(obj_filt2_meta$orig.ident))
-cellcounts$Group = obj_filt2_meta[,qc_groupby][
-  match(cellcounts$Var1, obj_filt2_meta$orig.ident)]
-ggplot(cellcounts, aes(x = Group, y = Freq)) +
-  geom_jitter(width = 0.1) +
-  lims(y = c(0,NA)) +
-  labs(x = "", y = "Cell count")
 
 ```
 
+`r remove_df`
 
 
+## Cell cycle prediction
+
+In order to estimate whether there are differences between samples considering the cell cycle state at time of collection, and whether this needs to be accounted for downstream, "cell cycle scores" is added. This is an average of scaled expression of a list of genes indicative of the S phase and the G2-M phase in the cell cycle.
+
+To specify which genes should be used for S phase and G2/M phase scores, edit the files *parameters/cc_S_genes.csv* and *parameters/cc_G2M_genes.csv* (note: these .csv-files should not contain column names). If no genes are indicated in these files, the default gene lists given by Seurat will be used (see `Seurat::cc.genes.updated.2019$s.genes` and `Seurat::cc.genes.updated.2019$g2m.genes`). Note that these default lists concern human genes.
 
 ```{r ccplots, fig.height=3, fig.width=7}
 
@@ -114,15 +162,101 @@ tar_read(cc_violin)
 
 ```
 
-```{r dfplots, fig.height=3, fig.width=7}
 
-tar_read(doublet_plots)
+## Doublet prediction
+
+In droplet-based sequencing, a number of droplets containing more than one cell is expected. In order to predict which "cells" in the dataset are actually composed of more than one cell, the package [DoubletFinder](https://github.com/chris-mcginnis-ucsf/DoubletFinder) is used. Doublet cells are then removed from the dataset.
+
+To evaluate whether the doublet prediction worked well, we look at two plots:
+
+1. A preliminary UMAP in which doublets are indicated (doublets are likely to be found between clusters)
+
+```{r dfplots_dim, fig.height=4, fig.width=6}
+
+tar_read(doublet_plots)$dimplot & labs(title = "Doublets")
 
 ```
+
+2. A violin plot showing the distribution of number of unique features per cell, split by predicted doublets and singlets in each sample (on average, doublets have a higher number of unique genes)
+
+
+```{r dfplots_vln, fig.height=3, fig.width=7}
+
+tar_read(doublet_plots)$vlnplot
+
+```
+
+
+## Final cell counts
+
+The final number of cells are as follows:
+
+```{r}
+tar_load(obj_filt_final_meta)
+```
+
+
+
+```{r cellcounts_final, fig.height = 3, fig.width=5}
+
+knitr::kable(as.data.frame(table(obj_filt_final_meta[[tar_read(qc_groupby)]])), col.names = c("sample","no of cells"))
+
+cellcounts = as.data.frame(table(obj_filt_final_meta[[tar_read(qc_groupby)]]))
+cellcounts$Group = obj_filt_final_meta[,qc_groupby][match(cellcounts$Var1, obj_filt_final_meta[[tar_read(qc_groupby)]])]
+ggplot(cellcounts, aes(x = Group, y = Freq)) + geom_jitter(width = 0.1) + lims(y = c(0,NA)) +
+  labs(x = "", y = "Cell count")
+
+```
+
+
+The distributions of the QC variables are also shown.
+
+```{r qc_final}
+tar_read(qc_final_vln)
+```
+
+
+# Normalization
+
+```{r}
+if(tar_read(dimred_sct)){
+  normalization_method = paste0("Normalization was performed using the SCTransform method on the top ",
+                                tar_read(dimred_nHVG)," most variable features.")
+  if(length(tar_read(dimred_varstoregress))>0){
+    normalization_method = paste0(normalization_method, " The following variables were regressed out: ",
+                                  paste0(tar_read(dimred_varstoregress), collapse = ", "),".")
+  }
+}else{
+  normalization_method = "Normalization was performed using the NormalizeData method."
+  if(length(tar_read(dimred_varstoregress))>0){
+    normalization_method = paste0(normalization_method, " The following variables were regressed out when scaling the top ",
+                                  tar_read(dimred_nHVG)," most variable features: ",
+                                  paste0(tar_read(dimred_varstoregress), collapse = ", "),".")
+  }
+}
+
+if(tar_read(load_joinlayers)){
+  HVGmessage = "*Note: This analysis uses the feature of layers introduced in Seurat v5. A feature of this functionality is that variance for each gene is calculated on each original sample individually, and the variability for each gene is calculated based on the ranks in each sample. This means that unlike previous Seurat versions, the genes with the most variability in the plot are not necessarily the most variable when combining the ranked lists.*"
+}else{
+  HVGmessage = ""
+}
+
+```
+
+`r normalization_method`
+
+# Dimensional reduction
 
 ```{r}
 tar_load(obj_pca_umap)
 ```
+
+# PCA
+
+Dimensional reduction was performed using PCA. To do this, the top `r tar_read(dimred_nHVG)` most variable features were used. They are visualized below (in red), showing the mean expression and standardized variance for each gene. The top 20 genes are labeled.
+
+`r HVGmessage`
+
 
 ```{r}
 top20 <- head(VariableFeatures(obj_pca_umap), 20)
@@ -131,19 +265,60 @@ LabelPoints(plot = VariableFeaturePlot(obj_pca_umap), points = top20, repel = TR
 ```
 
 
+The top variable genes are used to produce an initial PCA.
 
 ```{r}
 DimPlot(obj_pca_umap, reduction = "pca", shuffle = TRUE)
 ```
 
+The top genes contributing positively or negatively to the first 4 principal components are as shown:
+
 ```{r}
-VizDimLoadings(obj_pca_umap, dims = 1:4, nfeatures = 20, balanced = TRUE, ncol = 4)
+VizDimLoadings(obj_pca_umap, dims = 1:4, nfeatures = 20, balanced = TRUE, ncol = 4) &
+  geom_vline(xintercept = 0, linetype = 2, color = "grey") &
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
 ```
 
+
+The variance explained by each PC helps us estimate how many PCs will be useful to include in order to retain maximum variance while reducong noise. An "elbow plot" is useful for this.
 
 ```{r}
 ElbowPlot(obj_pca_umap, ndims = 50)
 ```
+
+## UMAP
+
+A UMAP was produced to visualize the relative similarities between cells. For this, the following parameters were set:
+
+```{r}
+
+shortenvector = function(x){
+  if(length(x)>1){
+    if(is.numeric(x) | is.integer(x)){
+      if(identical(as.numeric(x), as.numeric(min(x):max(x)))){
+        x = paste0(min(x), ":", max(x))
+      }
+    }
+    x = paste0(x, collapse = ", ")
+  }
+  x
+}
+
+umap_params = data.frame(
+  Parameter = c("Number of neighbors",
+                "Number of components to produce",
+                "Minimum distance",
+                "Number of PCs to consider"),
+  Value = c(
+    shortenvector(tar_read(dimred_umap_nn)),
+    shortenvector(tar_read(dimred_umap_ncomp)),
+    shortenvector(tar_read(dimred_umap_mindist)),
+    shortenvector(tar_read(dimred_umap_dims))
+    )
+)
+```
+
+`r knitr::kable(umap_params)`
 
 
 

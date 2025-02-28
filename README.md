@@ -8,10 +8,14 @@ Metadata for each sample should be provided in data/metadata.csv. This should be
 
 ### Metadata for doublet identification
 
-If doublets should be predicted using DoubletFinder and removed, the metadata table should also contain a column labeled "expectedCells", indicating the number of cells expected based on the number of cells loaded into each GEM well. If multiple samples were loaded into the same GEM well and later demultiplexed using hashtags, the column "gemWell" should also be present, with unique values for each GEM well. Note that the values are not important, as long as they are unique. As an exmple, if samples A and B were loaded into the same GEM well, in proportions expected to give 6 000 and 4 000 cells, respectively, and sample C was prepared in another well with an expected output of 10 000 cells, the metadata table could be as follows:
+If doublets should be predicted using DoubletFinder and removed, the metadata table should also contain a column labeled *expectedCells*, indicating the number of cells expected based on the number of cells loaded into each GEM well. If multiple samples were loaded into the same GEM well and later demultiplexed using hashtags, the column "gemWell" should also be present, with unique values for each GEM well. Note that the values are not important, as long as they are unique. As an example, if samples A and B were loaded into the same GEM well, in proportions expected to give 6 000 and 4 000 cells, respectively, and sample C was prepared in another well with an expected output of 10 000 cells, the metadata table could be as follows:
 
 | Sample | expectedCells | gemWell |
 |---|---|---|
 | SampleA | 6000 | FirstWell |
 | SampleB | 4000 | FirstWell |
 | SampleC | 10000 | SecondWell |
+
+For a table of loaded cells vs expected output, see the [table provided by 10x](https://kb.10xgenomics.com/hc/en-us/articles/360001378811-What-is-the-maximum-number-of-cells-that-can-be-profiled) (# of Cells recovered is the value that should be used in the metadata).
+
+

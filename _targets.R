@@ -128,6 +128,14 @@ c(getparams(),
     }else{
       obj_cc
     }
+  ),
+  tar_target(
+    obj_filt_final_meta,
+    obj_filt_final@meta.data
+  ),
+  tar_target(
+    name = qc_final_vln,
+    command = qc_vln(obj_filt_final, qc_groupby = qc_groupby)
   ), 
   tar_target(
     obj_normalized,
