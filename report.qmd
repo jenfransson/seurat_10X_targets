@@ -124,6 +124,13 @@ tar_read(doublet_plots)
 tar_load(obj_pca_umap)
 ```
 
+```{r}
+top20 <- head(VariableFeatures(obj_pca_umap), 20)
+
+LabelPoints(plot = VariableFeaturePlot(obj_pca_umap), points = top20, repel = TRUE)
+```
+
+
 
 ```{r}
 DimPlot(obj_pca_umap, reduction = "pca", shuffle = TRUE)
