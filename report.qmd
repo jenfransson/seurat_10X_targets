@@ -82,12 +82,12 @@ We use four variables to compare the quality of each sample: Number of unique ge
 
 ```{r}
 thresholds = data.frame(
-  Parameter = c("Min number of unique features per cell", "Max number of reads per cell",
+  Parameter = c("Min number of unique features per cell", "Max number of reads (unique UMIs) per cell",
             "Max % mitochondrial reads per cell", "Min % ribosomal reads per cell",
             "Min number of cells expressing a gene"),
-  Value = c(tar_read(qc_nFeatureMin), tar_read(qc_nCountMax),
+  Value = as.character(c(tar_read(qc_nFeatureMin), tar_read(qc_nCountMax),
             tar_read(qc_mitoMax), tar_read(qc_riboMin),
-            tar_read(qc_minCells)))
+            tar_read(qc_minCells))))
 
 ```
 
