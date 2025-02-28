@@ -1,2 +1,4 @@
-project_description: "Here is some general information about the project and analysis. It can be edited in the file *_metadata.yml*.
-study_description: "This is the study description. It can be edited in the file *_metadata.yml*."
+project_description: 
+  Here is some general information about the project and analysis. It can be edited in the file <i>_metadata.yml</i>.
+study_description:
+  This is the study description. It can be edited in the file <i>_metadata.yml</i>.
