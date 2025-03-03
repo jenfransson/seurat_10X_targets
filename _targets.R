@@ -158,6 +158,47 @@ c(getparams(),
             n.components= dimred_umap_ncomp,
             min.dist = dimred_umap_mindist,
             dims = dimred_umap_dims)
+  ),
+  tar_target(
+    obj_int,
+    if(run_int){
+      
+      obj_tmp = obj_pca_umap
+      
+      obj_tmp = moveReduction(obj_tmp, "pca", "pca_nonint", "pcanonint_")
+      obj_tmp = moveReduction(obj_tmp, "umap", "umap_nonint", "umapnonint_")
+      
+      obj_int = integrate_obj(obj_tmp, load_joinlayers, int_split)
+      
+      obj_int <- ScaleData(obj_int)
+      if(load_joinlayers){
+        obj_int <- RunPCA(obj_int, npcs = 30, verbose = FALSE)
+      }
+      
+      obj_int
+      
+    }else{
+      obj_pca_umap
+    }
+  ),
+  tar_target(
+    obj_int_umap,
+    
+    if(!load_joinlayers){
+      RunUMAP(obj_int, 
+              reduction = "integrated.cca",
+              n.neighbors = int_umap_nn,
+              n.components= int_umap_ncomp,
+              min.dist = int_umap_mindist,
+              dims = int_umap_dims)
+    }else{
+      RunUMAP(obj_int,
+              reduction = "pca",
+              n.neighbors = int_umap_nn,
+              n.components= int_umap_ncomp,
+              min.dist = int_umap_mindist,
+              dims = int_umap_dims)
+    }
+    
   )
-  
 ))

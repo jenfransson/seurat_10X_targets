@@ -90,6 +90,37 @@ getparams = function(){
     tar_target(
       dimred_umap_dims,
       1:20
+    ),
+    tar_target(
+      run_int,
+      TRUE
+    ),
+    tar_target(
+      int_split,
+      "Sample"
+    ),
+    tar_target(
+      int_umap_nn,
+      30
+      ## Seurat default: 30
+    ),
+    tar_target(
+      int_umap_ncomp,
+      2
+      ## Seurat default: 2
+    ),
+    tar_target(
+      int_umap_mindist,
+      0.3
+      ## Seurat default: 0.3
+    ),
+    tar_target(
+      int_umap_dims,
+      1:20
+    ),
+    tar_target(
+      clus_reduction,
+      "integrated.cca" 
     )
   )
 }

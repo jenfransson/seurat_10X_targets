@@ -59,17 +59,17 @@ read_metadata = function(metadatapath, required = c("Sample")){
   metadata
 }
 
-add_qc = function(alldata, qc_mitopattern, qc_ribopattern){
-  alldata$percent.mito = 
-    PercentageFeatureSet(alldata, pattern = qc_mitopattern)
-  alldata$percent.ribo =
-    PercentageFeatureSet(alldata, pattern = qc_ribopattern)
-  alldata
+add_qc = function(obj, qc_mitopattern, qc_ribopattern){
+  obj$percent.mito = 
+    PercentageFeatureSet(obj, pattern = qc_mitopattern)
+  obj$percent.ribo =
+    PercentageFeatureSet(obj, pattern = qc_ribopattern)
+  obj
 }
 
 
-qc_vln = function(alldata, qc_groupby, thresholds = list()){
-  vp = VlnPlot(alldata, 
+qc_vln = function(obj, qc_groupby, thresholds = list()){
+  vp = VlnPlot(obj, 
           features = c("nFeature_RNA","nCount_RNA",
                        "percent.mito", "percent.ribo"),
           group.by = qc_groupby, layer = "counts",
@@ -273,4 +273,63 @@ removeDoublets = function(obj){
 }
 
 
+integrate_obj = function(obj, join_layers, split_group){
+  if(! split_group %in% colnames(obj@meta.data)){
+    stop("split_group must be a column name in obj@meta.data")
+  }
+  if(length(unique(obj@meta.data[[split_group]])) == 1){
+    stop(paste0("obj has only one value of split_group parameter ", split_group, ". Either change split_group to a column name with multiple values, or skip integration by setting run_int = FALSE"))
+  }
+  
+  if(join_layers){
+    obj = SplitObject(obj, split_group)
+    
+    obj = lapply(obj, function(x){
+      x <- NormalizeData(x, verbose = FALSE)
+      x <- FindVariableFeatures(x, selection.method = "vst",
+                                nfeatures = 2000, verbose = FALSE)
+    })
+    
+    data.anchors <- FindIntegrationAnchors(object.list = obj, 
+                                           dims = 1:30, reduction = "cca")
+    rm(obj)
+    gc()
+    
+    obj <- IntegrateData(anchorset = data.anchors, dims = 1:30, new.assay.name = "CCA")
+    
+    rm(data.anchors)
+    gc()
+    
+  }else{
+    
+    obj = JoinLayers(obj)
+
+    obj[[obj@active.assay]] <- split(obj[[obj@active.assay]], f = obj@meta.data[[split_group]])
+    
+    obj <- NormalizeData(obj)
+    obj <- FindVariableFeatures(obj)
+    obj <- ScaleData(obj)
+    obj <- RunPCA(obj)
+    
+    obj <- IntegrateLayers(
+      object = obj, method = CCAIntegration,
+      orig.reduction = "pca", new.reduction = "integrated.cca",
+      verbose = FALSE
+    )
+  }
+  obj
+}
+
+
+moveReduction = function(obj, oldname, newname, newkey){
+  oldred = obj@reductions[[oldname]]
+  obj@reductions[[newname]] = CreateDimReducObject(embeddings = oldred@cell.embeddings,
+                       loadings = oldred@feature.loadings,
+                       projected = oldred@feature.loadings.projected,
+                       assay = oldred@assay.used,
+                       key = newkey
+                       )
+  obj@reductions[[oldname]] = NULL
+  obj
+}
 
