@@ -4,7 +4,7 @@ getparams = function(){
     # Parameters for loading data
     tar_target(
       load_joinlayers,
-      FALSE
+      TRUE
     ),
     
     # Parameters for QC and filtering
@@ -91,6 +91,9 @@ getparams = function(){
       dimred_umap_dims,
       1:20
     ),
+    
+    # Integration parameters
+    
     tar_target(
       run_int,
       TRUE
@@ -118,9 +121,23 @@ getparams = function(){
       int_umap_dims,
       1:20
     ),
+    
+    # Clustering parameters
+    
     tar_target(
+      # Which reduction should be used for clustering?
       clus_reduction,
-      "integrated.cca" 
+      "pca" 
+    ),
+    tar_target(
+      # Which resolution(s) should be used for clustering?
+      clus_resolutions,
+      c(0.25,0.5,1,1.5)
+    ),
+    tar_target(
+      # Which dimensions of the reduction should be used for clustering?
+      clus_dims,
+      1:30
     )
   )
 }

@@ -360,6 +360,26 @@ plot_grid(
 
 
 
+```{r}
+tar_load(obj_clus)
+```
+
+```{r}
+
+plot_grid(
+  plotlist = 
+    lapply(reductions, function(red){
+      DimPlot(obj_int_umap, reduction = red, shuffle = TRUE) & 
+        NoLegend() & 
+        theme(axis.text = element_blank(), axis.title = element_blank(),
+              axis.ticks = element_blank()) &
+        labs(title = red)
+}))
+
+```
+
+
+
 # Workflow warnings
 
 ```{r}

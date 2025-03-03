@@ -333,3 +333,13 @@ moveReduction = function(obj, oldname, newname, newkey){
   obj
 }
 
+
+runClustering = function(obj,reduction, clusteringres, dims){
+  obj <- FindNeighbors(obj, reduction = reduction,
+                       dims = dims)
+  for(res in clusteringres){
+    obj <- FindClusters(obj, resolution = res,
+                        cluster.name = paste0("clusters_", reduction,"_",res))
+  }
+  obj
+}

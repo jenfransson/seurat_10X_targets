@@ -170,6 +170,11 @@ c(getparams(),
       
       obj_int = integrate_obj(obj_tmp, load_joinlayers, int_split)
       
+      if(load_joinlayers){
+        obj_int@reductions[["pca_nonint"]] = obj_tmp@reductions[["pca_nonint"]]
+        obj_int@reductions[["umap_nonint"]] = obj_tmp@reductions[["umap_nonint"]]
+      }
+      
       obj_int <- ScaleData(obj_int)
       if(load_joinlayers){
         obj_int <- RunPCA(obj_int, npcs = 30, verbose = FALSE)
@@ -184,21 +189,27 @@ c(getparams(),
   tar_target(
     obj_int_umap,
     
-    if(!load_joinlayers){
-      RunUMAP(obj_int, 
-              reduction = "integrated.cca",
-              n.neighbors = int_umap_nn,
-              n.components= int_umap_ncomp,
-              min.dist = int_umap_mindist,
-              dims = int_umap_dims)
-    }else{
-      RunUMAP(obj_int,
-              reduction = "pca",
-              n.neighbors = int_umap_nn,
-              n.components= int_umap_ncomp,
-              min.dist = int_umap_mindist,
-              dims = int_umap_dims)
+    if(run_int){
+      if(!load_joinlayers){
+        RunUMAP(obj_int, 
+                reduction = "integrated.cca",
+                n.neighbors = int_umap_nn,
+                n.components= int_umap_ncomp,
+                min.dist = int_umap_mindist,
+                dims = int_umap_dims)
+      }else{
+        RunUMAP(obj_int,
+                reduction = "pca",
+                n.neighbors = int_umap_nn,
+                n.components= int_umap_ncomp,
+                min.dist = int_umap_mindist,
+                dims = int_umap_dims)
+      }
     }
     
+  ),
+  tar_target(
+    obj_clus,
+    runClustering(obj_int_umap, clus_reduction, clus_resolutions, clus_dims)
   )
 ))
