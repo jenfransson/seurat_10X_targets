@@ -29,10 +29,12 @@ knitr::opts_chunk$set(message    = FALSE,
 {{< meta project_description >}}
 
 
-```{r, results = FALSE}
+```{r, results = "hide"}
 
 library(Seurat)
 library(targets)
+library(clustree)
+
 tar_make_future()
 
 ```
@@ -171,25 +173,35 @@ tar_read(cc_violin)
 
 ## Doublet prediction
 
-In droplet-based sequencing, a number of droplets containing more than one cell is expected. In order to predict which "cells" in the dataset are actually composed of more than one cell, the package [DoubletFinder](https://github.com/chris-mcginnis-ucsf/DoubletFinder) is used. Doublet cells are then removed from the dataset.
+```{r}
+
+DFmessage = "Doublet removal was not performed."
+
+if(tar_read(qc_runDF)){
+  DFmessage = 'In droplet-based sequencing, a number of droplets containing more than one cell is expected. In order to predict which "cells" in the dataset are actually composed of more than one cell, the package [DoubletFinder](https://github.com/chris-mcginnis-ucsf/DoubletFinder) is used. Doublet cells are then removed from the dataset.
 
 To evaluate whether the doublet prediction worked well, we look at two plots:
 
 1. A preliminary UMAP in which doublets are indicated (doublets are likely to be found between clusters)
 
-```{r dfplots_dim, fig.height=4, fig.width=6}
-
-tar_read(doublet_plots)$dimplot & labs(title = "Doublets")
+2. A violin plot showing the distribution of number of unique features per cell, split by predicted doublets and singlets in each sample (on average, doublets have a higher number of unique genes)'
+}
 
 ```
 
-2. A violin plot showing the distribution of number of unique features per cell, split by predicted doublets and singlets in each sample (on average, doublets have a higher number of unique genes)
 
+`r DFmessage`
+
+```{r dfplots_dim, fig.height=4, fig.width=6}
+if(tar_read(qc_runDF)){
+  tar_read(doublet_plots)$dimplot & labs(title = "Doublets")
+}
+```
 
 ```{r dfplots_vln, fig.height=3, fig.width=7}
-
-tar_read(doublet_plots)$vlnplot
-
+if(tar_read(qc_runDF)){
+  tar_read(doublet_plots)$vlnplot
+}
 ```
 
 
@@ -257,7 +269,7 @@ if(tar_read(load_joinlayers)){
 tar_load(obj_pca_umap)
 ```
 
-# PCA
+## PCA
 
 Dimensional reduction was performed using PCA. To do this, the top `r tar_read(dimred_nHVG)` most variable features were used. They are visualized below (in red), showing the mean expression and standardized variance for each gene. The top 20 genes are labeled.
 
@@ -332,7 +344,13 @@ umap_params = data.frame(
 DimPlot(obj_pca_umap, shuffle = TRUE)
 ```
 
+```{r, results = "hide"}
+rm(obj_pca_umap)
+gc()
+```
 
+
+# Integration
 
 ```{r}
 tar_load(obj_int_umap)
@@ -358,7 +376,13 @@ plot_grid(
 
 ```
 
+```{r, results = "hide"}
+rm(obj_int_umap)
+gc()
+```
 
+
+# Clustering
 
 ```{r}
 tar_load(obj_clus)
@@ -366,18 +390,25 @@ tar_load(obj_clus)
 
 ```{r}
 
+clustername = paste0("clusters_",tar_read(clus_reduction),"_")
+
+clustering = colnames(obj_clus@meta.data)[grepl(clustername, colnames(obj_clus@meta.data))]
 plot_grid(
   plotlist = 
-    lapply(reductions, function(red){
-      DimPlot(obj_int_umap, reduction = red, shuffle = TRUE) & 
+    lapply(clustering, function(clus){
+      DimPlot(obj_clus, reduction = "umap", shuffle = TRUE,
+              group.by = clus, label = TRUE) & 
         NoLegend() & 
         theme(axis.text = element_blank(), axis.title = element_blank(),
               axis.ticks = element_blank()) &
-        labs(title = red)
+        labs(title = clus)
 }))
 
 ```
 
+```{r}
+clustree(obj_clus, prefix = clustername)
+```
 
 
 # Workflow warnings
