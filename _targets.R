@@ -221,6 +221,7 @@ c(getparams(),
     cluster_de,
     runClusterDE(obj_clus, 
                  paste0("clusters_",clus_reduction,"_",clus_de_res), 
+                 assay = ifelse(dimred_sct, "SCT","RNA"),
                  logfc.threshold = clus_de_logfc.threshold,
                  test.use = clus_de_test.use,
                  min.pct = clus_de_min.pct,
@@ -231,7 +232,7 @@ c(getparams(),
     cluster_de_barplot,
     {
       ggplot(
-        cluster_de %>% 
+        cluster_de$de_res %>% 
           group_by(cluster) %>%
           filter(p_val_adj < 0.05) %>%
           slice_min(p_val_adj, n = 10),

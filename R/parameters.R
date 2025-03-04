@@ -60,6 +60,7 @@ getparams = function(){
     
     # Dimensional reduction parameters
     tar_target(
+      # Should normalization be performed with SCTransform?
       dimred_sct,
       FALSE
     ),

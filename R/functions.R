@@ -345,13 +345,20 @@ runClustering = function(obj,reduction, clusteringres, dims){
 }
 
 
-runClusterDE = function(obj, group, ...){
+runClusterDE = function(obj, group, assay, ...){
   obj = SetIdent(obj, value = group)
-  maxn = max(table(obj@active.ident))
+  
+  maxn = min(table(obj@active.ident))
   
   message(paste0("Max n for cluster DE is ", maxn))
   
   obj = subset(obj, downsample = maxn)
   
-  FindAllMarkers(obj, ...)
+  obj@active.assay = assay
+  obj = JoinLayers(obj)
+  
+  list(de_res = FindAllMarkers(obj, ...),
+       maxn = maxn)
+
+  
 }
