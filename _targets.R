@@ -182,8 +182,6 @@ c(getparams(),
       
       obj_int
       
-    }else{
-      obj_pca_umap
     }
   ),
   tar_target(
@@ -210,6 +208,13 @@ c(getparams(),
   ),
   tar_target(
     obj_clus,
-    runClustering(obj_int_umap, clus_reduction, clus_resolutions, clus_dims)
+    {
+      if(run_int){
+        obj_tmp = obj_int_umap
+      }else{
+        obj_tmp = obj_pca_umap
+      }
+      runClustering(obj_tmp, clus_reduction, clus_resolutions, clus_dims)
+    }
   )
 ))
