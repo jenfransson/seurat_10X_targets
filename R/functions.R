@@ -68,12 +68,12 @@ add_qc = function(obj, qc_mitopattern, qc_ribopattern){
 }
 
 
-qc_vln = function(obj, qc_groupby, thresholds = list()){
+qc_vln = function(obj, qc_groupby, thresholds = list(), pt.size = 0,...){
   vp = VlnPlot(obj, 
           features = c("nFeature_RNA","nCount_RNA",
                        "percent.mito", "percent.ribo"),
           group.by = qc_groupby, layer = "counts",
-          pt.size = 0, ncol = 2) & violintheme()
+          pt.size = pt.size, ncol = 2, ...) & violintheme()
   if(length(thresholds)>0){
     variables = sapply(vp, function(x){colnames(x$data)[1]})
     
