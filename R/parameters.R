@@ -138,6 +138,36 @@ getparams = function(){
       # Which dimensions of the reduction should be used for clustering?
       clus_dims,
       1:30
+    ),
+    tar_target(
+      # Which resolution should be used for cluster DE?
+      clus_de_res,
+      0.25
+    ),
+    tar_target(
+      clus_de_logfc.threshold,
+      0.1
+      # Seurat default 0.1
+    ),
+    tar_target(
+      clus_de_test.use,
+      "wilcox"
+      # Seurat default "wilcox"
+    ),
+    tar_target(
+      clus_de_min.pct,
+      0.01
+      # Seurat default 0.01
+    ),
+    tar_target(
+      clus_de_min.diff.pct,
+      -Inf
+      # Seurat default -Inf
+    ),
+    tar_target(
+      clus_de_only.pos,
+      TRUE
+      # Seurat default FALSE
     )
   )
 }

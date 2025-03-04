@@ -343,3 +343,15 @@ runClustering = function(obj,reduction, clusteringres, dims){
   }
   obj
 }
+
+
+runClusterDE = function(obj, group, ...){
+  obj = SetIdent(obj, value = group)
+  maxn = max(table(obj@active.ident))
+  
+  message(paste0("Max n for cluster DE is ", maxn))
+  
+  obj = subset(obj, downsample = maxn)
+  
+  FindAllMarkers(obj, ...)
+}

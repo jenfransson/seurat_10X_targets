@@ -216,5 +216,29 @@ c(getparams(),
       }
       runClustering(obj_tmp, clus_reduction, clus_resolutions, clus_dims)
     }
+  ),
+  tar_target(
+    cluster_de,
+    runClusterDE(obj_clus, 
+                 paste0("clusters_",clus_reduction,"_",clus_de_res), 
+                 logfc.threshold = clus_de_logfc.threshold,
+                 test.use = clus_de_test.use,
+                 min.pct = clus_de_min.pct,
+                 min.diff.pct = clus_de_min.diff.pct,
+                 only.pos = clus_de_only.pos)
+  ),
+  tar_target(
+    cluster_de_barplot,
+    {
+      ggplot(
+        cluster_de %>% 
+          group_by(cluster) %>%
+          filter(p_val_adj < 0.05) %>%
+          slice_min(p_val_adj, n = 10),
+        aes(y = gene, x = avg_log2FC)
+      ) + 
+        geom_bar(stat = "identity") +
+        facet_wrap( ~ cluster, scales = "free_y")
+    }
   )
 ))

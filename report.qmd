@@ -410,6 +410,40 @@ plot_grid(
 clustree(obj_clus, prefix = clustername)
 ```
 
+## Resolution for annotation
+
+```{r}
+cluster_res = paste0("clusters_",
+                     tar_read(clus_reduction),
+                     "_",
+                     tar_read(clus_de_res))
+```
+
+
+```{r}
+
+ggplot(obj_clus@meta.data, 
+       aes(x = Sample)) + 
+  geom_bar(aes(fill = factor(.data[[cluster_res]])),
+           position = "fill")
+
+
+ggplot(obj_clus@meta.data, 
+       aes(x = factor(.data[[cluster_res]]))) + 
+  geom_bar(aes(fill = Sample), position = "fill")
+
+```
+
+
+
+```{r}
+
+tar_read(cluster_de_barplot)
+
+```
+
+
+
 
 # Workflow warnings
 
