@@ -411,13 +411,13 @@ clustering = colnames(obj_clus@meta.data)[grepl(clustername, colnames(obj_clus@m
 plot_grid(
   plotlist = 
     lapply(clustering, function(clus){
-      addColors(DimPlot(obj_clus, reduction = "umap", shuffle = TRUE,
+      shadow_text(addColors(DimPlot(obj_clus, reduction = "umap", shuffle = TRUE,
               group.by = clus, label = TRUE) & 
         NoLegend() & 
         theme(axis.text = element_blank(), axis.title = element_blank(),
               axis.ticks = element_blank()) &
         labs(title = clus),
-        scale_type = "colour", layer = 1)
+        scale_type = "colour", layer = 1))
 }))
 
 ```

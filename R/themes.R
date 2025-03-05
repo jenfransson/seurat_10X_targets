@@ -1,3 +1,4 @@
+
 violintheme = function(){
   theme(axis.text = element_text(size = 8),
         plot.title = element_text(size = 10),
@@ -40,4 +41,32 @@ addColors = function(plot, scale_type = "colour", layer = NULL){
       values = get_color_list(nvalues))
   }
   
+}
+
+
+
+shadow_text = function(plot, layer = NULL){
+  
+  library(shadowtext)
+  
+  if(!is.null(layer)){
+    if(! "GeomText" %in% class(plot$layers[[layer]]$geom)){
+      stop("The requested layer is not a text layer")
+    }
+    layers = layer
+  }else{
+    layers = which(sapply(plot$layers, function(x){
+      "GeomText" %in% class(x$geom)
+    }))
+  }
+  
+  for(l in layers){
+    plot = plot + geom_shadowtext(
+      data = plot$layers[[l]]$data,
+      mapping = plot$layers[[l]]$mapping)
+  }
+  
+  plot$layers[layers] = NULL
+  
+  plot
 }
