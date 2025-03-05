@@ -258,7 +258,7 @@ if(tar_read(dimred_sct)){
   }
 }
 
-if(tar_read(load_joinlayers)){
+if(!tar_read(load_joinlayers)){
   HVGmessage = "*Note: This analysis uses the feature of layers introduced in Seurat v5. A feature of this functionality is that variance for each gene is calculated on each original sample individually, and the variability for each gene is calculated based on the ranks in each sample. This means that unlike previous Seurat versions, the genes with the most variability in the plot are not necessarily the most variable when combining the ranked lists.*"
 }else{
   HVGmessage = ""
@@ -279,7 +279,6 @@ tar_load(obj_pca_umap)
 Dimensional reduction was performed using PCA. To do this, the top `r tar_read(dimred_nHVG)` most variable features were used. They are visualized below (in red), showing the mean expression and standardized variance for each gene. The top 20 genes are labeled.
 
 `r HVGmessage`
-
 
 ```{r}
 top20 <- head(VariableFeatures(obj_pca_umap), 20)

@@ -32,6 +32,12 @@ addColors = function(plot, scale_type = "colour", layer = NULL){
   }
   
   nvalues = length(unique(map_data[[map_col]]))
-  plot & get(paste0("scale_",scale_type,"_manual"))(
-    values = get_color_list(nvalues))
+  if(nvalues > 18){
+    warning("Custom colors could not be added to plot due to > 18 unique values")
+    plot
+  }else{
+    plot & get(paste0("scale_",scale_type,"_manual"))(
+      values = get_color_list(nvalues))
+  }
+  
 }
