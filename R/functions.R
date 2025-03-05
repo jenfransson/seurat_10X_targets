@@ -88,7 +88,7 @@ qc_vln = function(obj, qc_groupby, thresholds = list(), pt.size = 0,...){
     }
   }
   
-  vp
+  addColors(vp, scale_type = "fill")
 }
 
 filter_obj = function(obj, qc_mitoMax, qc_riboMin, qc_nFeatureMin,
@@ -192,8 +192,8 @@ runCC = function(obj, slist, g2mlist){
 }
 
 plot_CC = function(obj, group.by){
-  VlnPlot(obj, features = c("S.Score", "G2M.Score"), group.by = group.by,
-          pt.size = 0) & violintheme()
+  addColors(VlnPlot(obj, features = c("S.Score", "G2M.Score"), group.by = group.by,
+          pt.size = 0) & violintheme(), scale_type = "fill")
 }
 
 
@@ -362,3 +362,8 @@ runClusterDE = function(obj, group, assay, ...){
 
   
 }
+
+
+
+
+

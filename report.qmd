@@ -43,9 +43,8 @@ tar_make_future()
 
 library(ggplot2)
 library(cowplot)
-violintheme = theme(axis.text = element_text(size = 8),
-                    plot.title = element_text(size = 10),
-                    axis.title = element_text(size = 8))
+
+source("R/themes.R")
 
 ```
 
@@ -286,7 +285,7 @@ LabelPoints(plot = VariableFeaturePlot(obj_pca_umap), points = top20, repel = TR
 The top variable genes are used to produce an initial PCA.
 
 ```{r}
-DimPlot(obj_pca_umap, reduction = "pca", shuffle = TRUE)
+addColors(DimPlot(obj_pca_umap, reduction = "pca", shuffle = TRUE), layer = 1)
 ```
 
 The top genes contributing positively or negatively to the first 4 principal components are as shown:
@@ -341,8 +340,19 @@ umap_params = data.frame(
 
 
 ```{r}
-DimPlot(obj_pca_umap, shuffle = TRUE)
+addColors(DimPlot(obj_pca_umap, shuffle = TRUE), layer = 1)
 ```
+
+
+
+```{r, fig.height=7, fig.width=8}
+FeaturePlot(obj_pca_umap, c("nFeature_RNA","nCount_RNA","percent.mito"), ncol = 2) & 
+  theme(plot.title = element_text(size = 12),
+        legend.text = element_text(size =10),
+        axis.text = element_blank(),
+        axis.ticks = element_blank())
+```
+
 
 ```{r, results = "hide"}
 rm(obj_pca_umap)
@@ -367,11 +377,11 @@ reductions = c(
 plot_grid(
   plotlist = 
     lapply(reductions, function(red){
-      DimPlot(obj_int_umap, reduction = red, shuffle = TRUE) & 
+      addColors(DimPlot(obj_int_umap, reduction = red, shuffle = TRUE) & 
         NoLegend() & 
         theme(axis.text = element_blank(), axis.title = element_blank(),
               axis.ticks = element_blank()) &
-        labs(title = red)
+        labs(title = red), layer = 1)
 }))
 
 ```
@@ -396,21 +406,26 @@ clustering = colnames(obj_clus@meta.data)[grepl(clustername, colnames(obj_clus@m
 plot_grid(
   plotlist = 
     lapply(clustering, function(clus){
-      DimPlot(obj_clus, reduction = "umap", shuffle = TRUE,
+      addColors(DimPlot(obj_clus, reduction = "umap", shuffle = TRUE,
               group.by = clus, label = TRUE) & 
         NoLegend() & 
         theme(axis.text = element_blank(), axis.title = element_blank(),
               axis.ticks = element_blank()) &
-        labs(title = clus)
+        labs(title = clus),
+        scale_type = "colour", layer = 1)
 }))
 
 ```
 
 ```{r}
+
 clustree(obj_clus, prefix = clustername)
+
 ```
 
 ## Resolution for annotation
+
+
 
 ```{r}
 cluster_res = paste0("clusters_",
@@ -419,18 +434,23 @@ cluster_res = paste0("clusters_",
                      tar_read(clus_de_res))
 ```
 
+For annotation purposes and comparison between samples, a clustering resolution is chosen. For this report, the cluster of interest is `cluster_res`.
 
 ```{r}
 
-ggplot(obj_clus@meta.data, 
+obj_clus$Cluster = factor(obj_clus@meta.data[[cluster_res]])
+
+addColors(ggplot(obj_clus@meta.data, 
        aes(x = Sample)) + 
-  geom_bar(aes(fill = factor(.data[[cluster_res]])),
-           position = "fill")
+  geom_bar(aes(fill = Cluster),
+           position = "fill"),
+  "fill", layer = 1)
 
 
-ggplot(obj_clus@meta.data, 
-       aes(x = factor(.data[[cluster_res]]))) + 
-  geom_bar(aes(fill = Sample), position = "fill")
+addColors(ggplot(obj_clus@meta.data, 
+       aes(x = Cluster)) + 
+  geom_bar(aes(fill = Sample), position = "fill"),
+  scale_type = "fill", layer = 1)
 
 ```
 
