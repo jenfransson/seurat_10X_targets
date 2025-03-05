@@ -28,22 +28,24 @@ getparams = function(){
         "nCount_RNA",
         names(qc_perc_patterns))
     ),
+    
+    
     tar_target(
-      name = qc_mitoMax,
-      command = 20
+      # List of rules to use when filtering cells.
+      # Each rule is composed of a list, with the variable of interest (should be accessible using FetchData),
+      # the operator to apply, and the threshold. An optional fourth value will be used as an explanation in the report.
+      qc_filt_rules,
+      list(
+        list("nFeature_RNA",">",200,"Min number of unique features per cell"),
+        list("nCount_RNA","<",1000000, "Max number of reads (unique UMIs) per cell"),
+        list("percent.mito","<",20,
+             "Max % mitochondrial reads per cell"),
+        list("percent.ribo",">",5, "Min % ribosomal reads per cell")
+      )
     ),
-    tar_target(
-      name = qc_riboMin,
-      command = 5
-    ),
-    tar_target(
-      name = qc_nFeatureMin,
-      command = 200
-    ),
-    tar_target(
-      name = qc_nCountMax,
-      command = 1000000
-    ),
+    
+    
+    
     tar_target(
       name = qc_minCells,
       command = 10

@@ -89,7 +89,21 @@ qc_vln = function(obj, qc_groupby, qc_plotvars, thresholds = list(), pt.size = 0
   addColors(vp, scale_type = "fill")
 }
 
-filter_obj = function(obj, qc_mitoMax, qc_riboMin, qc_nFeatureMin,
+filter_obj = function(obj, qc_filt_rules,qc_minCells){
+  
+  em = FetchData(obj, Features(obj))>0
+  
+  ruledf = as.data.frame(lapply(qc_filt_rules, function(rule){
+    do.call(rule[[2]], list(FetchData(obj, rule[[1]]), rule[[3]]))
+  }))
+  
+  obj = subset(obj, cells = Cells(obj)[apply(ruledf, 1, min)>0],
+               features = rownames(obj)[
+                 Matrix::colSums(em) >
+                   qc_minCells])
+}
+
+filter_obj_old = function(obj, qc_mitoMax, qc_riboMin, qc_nFeatureMin,
                       qc_nCountMax,qc_minCells){
   
   em = FetchData(obj, Features(obj))>0
@@ -102,6 +116,7 @@ filter_obj = function(obj, qc_mitoMax, qc_riboMin, qc_nFeatureMin,
                  Matrix::colSums(em) >
                    qc_minCells])
 }
+
 
 
 remove_genes = function(obj, patterns, genes){
