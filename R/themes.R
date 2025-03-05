@@ -61,7 +61,7 @@ shadow_text = function(plot, layer = NULL){
   }
   
   for(l in layers){
-    plot = plot + geom_shadowtext(
+    plot = plot & geom_shadowtext(
       data = plot$layers[[l]]$data,
       mapping = plot$layers[[l]]$mapping)
   }

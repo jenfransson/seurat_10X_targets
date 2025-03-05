@@ -34,6 +34,7 @@ knitr::opts_chunk$set(message    = FALSE,
 library(Seurat)
 library(targets)
 library(clustree)
+library(dplyr)
 
 tar_make_future()
 
@@ -468,7 +469,40 @@ tar_read(cluster_de_barplot)
 ```
 
 
+```{r, fig.height=7, fig.width=7}
 
+addColors(VlnPlot(obj_clus, 
+        features = tar_read(qc_plotvars),
+        group.by = "Cluster", 
+        pt.size = 0, ncol = 2) & violintheme(),
+        scale_type = "fill")
+
+```
+
+```{r, fig.height=3, fig.width=7}
+
+addColors(VlnPlot(obj_clus, 
+        features = c("S.Score","G2M.Score"),
+        group.by = "Cluster", 
+        pt.size = 0, ncol = 2) & violintheme(),
+        scale_type = "fill")
+
+```
+
+
+```{r, fig.height=7, fig.width=7}
+
+top3 = unique(tar_read(cluster_de)$de_res %>%
+  group_by(cluster) %>%
+  slice_min(order_by = p_val_adj, n = 3) %>%
+    pull(gene))
+
+
+addColors(VlnPlot(obj_clus, group.by = "Cluster",
+        features = top3, pt.size = 0, assay = "RNA") &
+  violintheme(), scale_type = "fill")
+
+```
 
 # Workflow warnings
 
