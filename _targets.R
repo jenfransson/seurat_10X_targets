@@ -46,8 +46,7 @@ c(getparams(),
   tar_target(
     name = obj_orig,
     command = load_h5(data_list, metadata, join_layers = load_joinlayers,
-                      qc_mitopattern = qc_mitopattern, 
-                      qc_ribopattern = qc_ribopattern)
+                      qc_perc_patterns = qc_perc_patterns)
   ),
   tar_target(
     name = obj_orig_meta,
@@ -57,6 +56,7 @@ c(getparams(),
   tar_target(
     name = qc_unfiltered_vln,
     command = qc_vln(obj_orig, qc_groupby = qc_groupby, 
+                     qc_plotvars = qc_plotvars,
                      thresholds = list(percent.mito = qc_mitoMax,
                                        percent.ribo = qc_riboMin,
                                        nFeature_RNA = qc_nFeatureMin,
@@ -69,7 +69,8 @@ c(getparams(),
   ),
   tar_target(
     name = qc_filtered_vln,
-    command = qc_vln(obj_filt, qc_groupby = qc_groupby)
+    command = qc_vln(obj_filt, qc_groupby = qc_groupby,
+                     qc_plotvars = qc_plotvars)
   ),
   tar_target(
     top_expr_boxplot,
@@ -135,7 +136,8 @@ c(getparams(),
   ),
   tar_target(
     name = qc_final_vln,
-    command = qc_vln(obj_filt_final, qc_groupby = qc_groupby)
+    command = qc_vln(obj_filt_final, qc_groupby = qc_groupby,
+                     qc_plotvars = qc_plotvars)
   ), 
   tar_target(
     obj_normalized,

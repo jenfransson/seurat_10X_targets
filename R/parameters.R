@@ -14,12 +14,19 @@ getparams = function(){
       command = "Sample"
     ),
     tar_target(
-      name = qc_mitopattern,
-      command = "^MT-"
+      qc_perc_patterns,
+      list(
+        percent.mito = "^MT-",
+        percent.ribo = "^RP[SL]",
+        percent.hb = "^HB[^(P|E|S)]"
+      )
     ),
     tar_target(
-      name = qc_ribopattern,
-      command = "^RP[SL]"
+      qc_plotvars,
+      
+      c("nFeature_RNA",
+        "nCount_RNA",
+        names(qc_perc_patterns))
     ),
     tar_target(
       name = qc_mitoMax,

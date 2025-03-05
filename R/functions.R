@@ -1,7 +1,6 @@
 
 load_h5 = function(samples, metadata, join_layers = TRUE, 
-                   qc_mitopattern = qc_mitopattern,
-                   qc_ribopattern = qc_ribopattern){
+                   qc_perc_patterns){
   
   names(samples) = gsub(".*\\/","",gsub("\\.h5","",samples))
   
@@ -11,8 +10,7 @@ load_h5 = function(samples, metadata, join_layers = TRUE,
   })
   
   return(combine_objects(sample_list, metadata, join_layers) %>%
-           add_qc(qc_mitopattern = qc_mitopattern,
-                  qc_ribopattern = qc_ribopattern))
+           add_qc(qc_perc_patterns))
   
 }
 
@@ -59,19 +57,19 @@ read_metadata = function(metadatapath, required = c("Sample")){
   metadata
 }
 
-add_qc = function(obj, qc_mitopattern, qc_ribopattern){
-  obj$percent.mito = 
-    PercentageFeatureSet(obj, pattern = qc_mitopattern)
-  obj$percent.ribo =
-    PercentageFeatureSet(obj, pattern = qc_ribopattern)
+add_qc = function(obj, qc_perc_patterns){
+  for(n in names(qc_perc_patterns)){
+    obj = AddMetaData(obj,
+                      PercentageFeatureSet(obj, pattern = qc_perc_patterns[[n]]),
+                      n)
+  }
   obj
 }
 
 
-qc_vln = function(obj, qc_groupby, thresholds = list(), pt.size = 0,...){
+qc_vln = function(obj, qc_groupby, qc_plotvars, thresholds = list(), pt.size = 0,...){
   vp = VlnPlot(obj, 
-          features = c("nFeature_RNA","nCount_RNA",
-                       "percent.mito", "percent.ribo"),
+          features = qc_plotvars,
           group.by = qc_groupby, layer = "counts",
           pt.size = pt.size, ncol = 2, ...) & violintheme()
   if(length(thresholds)>0){
@@ -362,8 +360,4 @@ runClusterDE = function(obj, group, assay, ...){
 
   
 }
-
-
-
-
 
