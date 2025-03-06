@@ -392,6 +392,15 @@ plot_grid(
 
 ```
 
+
+```{r}
+
+addColors(DimPlot(obj_int_umap, reduction = "umap", shuffle = TRUE,
+                  split.by = tar_read(int_split)), layer = 1)
+
+```
+
+
 ```{r, results = "hide"}
 rm(obj_int_umap)
 gc()
