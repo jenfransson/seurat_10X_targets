@@ -467,7 +467,7 @@ cluster_res = paste0("clusters_",
                      tar_read(clus_de_res))
 ```
 
-For annotation purposes and comparison between samples, a clustering resolution was chosen. For this report, the cluster of interest was `cluster_res`.
+For annotation purposes and comparison between samples, a clustering resolution was chosen. For this report, the cluster of interest was `r cluster_res`.
 
 ```{r}
 
