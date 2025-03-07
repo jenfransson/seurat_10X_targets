@@ -166,7 +166,7 @@ if(length(patterns)>0){
 
 ## Cell cycle prediction
 
-In order to estimate whether there are differences between samples considering the cell cycle state at time of collection, and whether this needs to be accounted for downstream, "cell cycle scores" is added. This is an average of scaled expression of a list of genes indicative of the S phase and the G2-M phase in the cell cycle.
+In order to estimate whether there are differences between samples considering the cell cycle state at time of collection, and whether this needs to be accounted for downstream, "cell cycle scores" are added. This is an average of scaled expression of a list of genes indicative of the S phase and the G2-M phase in the cell cycle.
 
 To specify which genes should be used for S phase and G2/M phase scores, edit the files *parameters/cc_S_genes.csv* and *parameters/cc_G2M_genes.csv* (note: these .csv-files should not contain column names). If no genes are indicated in these files, the default gene lists given by Seurat will be used (see `Seurat::cc.genes.updated.2019$s.genes` and `Seurat::cc.genes.updated.2019$g2m.genes`). Note that these default lists concern human genes.
 
@@ -368,11 +368,27 @@ gc()
 
 # Integration
 
+
 ```{r}
+
+if(tar_read(run_int)){
+  intmessage = paste0("Integration was run to reduce batch effects considering each ",tar_read(int_split)," as a separate batch.")
+  show_int = TRUE
+}else{
+  intmessage = "Integration between samples/batches was not run in this analysis."
+  show_int = FALSE
+}
+
+```
+
+
+`r intmessage`
+
+```{r, eval = show_int, include = show_int}
 tar_load(obj_int_umap)
 ```
 
-```{r}
+```{r, eval = show_int, include = show_int}
 
 reductions = c(
   "pca_nonint","umap_nonint",
@@ -393,7 +409,7 @@ plot_grid(
 ```
 
 
-```{r}
+```{r, eval = show_int, include = show_int}
 
 addColors(DimPlot(obj_int_umap, reduction = "umap", shuffle = TRUE,
                   split.by = tar_read(int_split)), layer = 1)
@@ -401,13 +417,15 @@ addColors(DimPlot(obj_int_umap, reduction = "umap", shuffle = TRUE,
 ```
 
 
-```{r, results = "hide"}
+```{r, results = "hide", eval = show_int, include = show_int}
 rm(obj_int_umap)
 gc()
 ```
 
 
 # Clustering
+
+Clustering was performed on the reduction `r tar_read(clus_reduction)`, at resolutions `r paste0(tar_read(clus_resolutions),collapse = ", ")`.
 
 ```{r}
 tar_load(obj_clus)
@@ -449,7 +467,7 @@ cluster_res = paste0("clusters_",
                      tar_read(clus_de_res))
 ```
 
-For annotation purposes and comparison between samples, a clustering resolution is chosen. For this report, the cluster of interest is `cluster_res`.
+For annotation purposes and comparison between samples, a clustering resolution was chosen. For this report, the cluster of interest was `cluster_res`.
 
 ```{r}
 
