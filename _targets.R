@@ -229,15 +229,21 @@ c(getparams(),
   tar_target(
     cluster_de_barplot,
     {
+      top10 = cluster_de$de_res %>% 
+        group_by(cluster) %>%
+        filter(p_val_adj < 0.05) %>%
+        slice_min(p_val_adj, n = 10)
+      top10$gene = factor(top10$gene, levels = sort(unique(top10$gene), decreasing = TRUE))
       ggplot(
-        cluster_de$de_res %>% 
-          group_by(cluster) %>%
-          filter(p_val_adj < 0.05) %>%
-          slice_min(p_val_adj, n = 10),
-        aes(y = gene, x = avg_log2FC)
+        top10,
+        aes(y = gene, x = avg_log2FC,
+            fill = -log10(p_val_adj))
       ) + 
         geom_bar(stat = "identity") +
-        facet_wrap( ~ cluster, scales = "free_y")
+        facet_wrap( ~ cluster, scales = "free_y") +
+        theme(legend.title = element_text(size = 8),
+              legend.text = element_text(size = 8)) + 
+        scale_fill_viridis_c(limits = c(0,NA))
     }
   )
 ))

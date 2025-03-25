@@ -29,6 +29,41 @@ knitr::opts_chunk$set(message    = FALSE,
 {{< meta project_description >}}
 
 
+
+
+```{r esthetics}
+
+library(ggplot2)
+library(cowplot)
+
+source("R/themes.R")
+
+
+```
+
+
+
+# Study description
+
+{{< meta study_description >}}
+
+
+# Workflow
+
+For this analysis, the R package `targets` is used to manage the workflow. This enables caching of intermediate files without manual management, thus reducing risk of mismatched intermediate files after analysis parameters have been modified.
+
+However, this means that the code in this report does not represent the full code necessary to generate the figures. Instead, the code used to produce the R objects used here can be found primarily in the files _targets.R and R/functions.R. To see which functions and parameters have generated each object, the following code can be run within the repository directory to generate a workflow chart:
+
+```
+library(targets)
+tar_visnetwork()
+```
+
+Documentation about the package can be found [here](https://books.ropensci.org/targets/).
+
+The workflow is checked and rerun if necessary using the command `tar_make()` or `tar_make_future()` (the latter enables parallelization).
+
+
 ```{r, results = "hide"}
 
 library(Seurat)
@@ -39,21 +74,6 @@ library(dplyr)
 tar_make_future()
 
 ```
-
-```{r esthetics}
-
-library(ggplot2)
-library(cowplot)
-
-source("R/themes.R")
-
-```
-
-
-
-# Study description
-
-{{< meta study_description >}}
 
 # Original data
 
@@ -84,24 +104,26 @@ ggplot(cellcounts, aes(x = Group, y = Freq)) + geom_jitter(width = 0.1) + lims(y
 We use four variables to compare the quality of each sample: Number of unique genes ("nFeature_RNA"), number of UMI counts ("nCounts_RNA"), % of mitochondrial RNA in the sample ("percent.mito") and % of ribosomal RNA in the sample ("percent.ribo"). The quality control metrics are shown for each sample before and after filtering. In the unfiltered data, the dashed lines indicate thresholds that were used to filter the data. The thresholds used were the following:
 
 ```{r}
+
 tar_load(qc_filt_rules)
-
-
 
 thresholds = data.frame(
   Parameter = sapply(qc_filt_rules, function(x){
-  if(length(x)>3){
-    x[[4]]
-  }else{
-    paste(x[[1]], x[[2]])
-  }
-}),
+    if(length(x)>3){
+      x[[4]]
+    }else{
+      paste(x[[1]], x[[2]])
+    }
+  }),
   Value = sapply(qc_filt_rules, "[[", 3))
 
 ```
 
 
 `r knitr::kable(thresholds)`
+
+In addition, genes were removed from the data sets unless they were expressed in > `r tar_read(qc_minCells)` cells.
+
 
 ```{r qc_unfiltered_plot, fig.height=7,fig.width=7}
 tar_read(qc_unfiltered_vln)
@@ -488,13 +510,7 @@ addColors(ggplot(obj_clus@meta.data,
 ```
 
 
-
-```{r}
-
-tar_read(cluster_de_barplot)
-
-```
-
+The distribution of QC variables and cell cycle scores are shown across clusters using violin plots.
 
 ```{r, fig.height=7, fig.width=7}
 
@@ -517,6 +533,21 @@ addColors(VlnPlot(obj_clus,
 ```
 
 
+
+
+Differential expression analysis was performed between clusters by comparing each cluster to all other clusters ("1-vs-all").
+
+The top 10 differentially expressed genes (DEGs) per cluster (based on p-value) are listed below. The bars show the log2(fold-change) of the DEG.
+
+```{r}
+
+tar_read(cluster_de_barplot)
+
+```
+
+
+Expression of the top 3 DEGs per cluster (based on p-value) are shown in across clusters in violin plots.
+
 ```{r, fig.height=7, fig.width=7}
 
 top3 = unique(tar_read(cluster_de)$de_res %>%
@@ -531,7 +562,12 @@ addColors(VlnPlot(obj_clus, group.by = "Cluster",
 
 ```
 
-# Workflow warnings
+
+# Reproducibility
+
+## Workflow warnings
+
+Below are any warnings produced during the targets workflow.
 
 ```{r}
 
@@ -541,7 +577,7 @@ knitr::kable(targets::tar_meta(fields = warnings, complete_only = TRUE))
 
 
 
-# Session info
+## Session info
 
 ```{r}
 
