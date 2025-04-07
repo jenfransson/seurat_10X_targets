@@ -21,6 +21,12 @@ tar_option_set(
 
 options(future.globals.maxSize= 10^10)
 
+
+## Use to change between branches
+Sys.setenv(TAR_PROJECT = "main")
+
+
+
 # Run the R scripts in the R/ folder with your custom functions:
 tar_source()
 # tar_source("other_functions.R") # Source other scripts as needed.

@@ -2,6 +2,10 @@
 load_h5 = function(samples, metadata, join_layers = TRUE, 
                    qc_perc_patterns){
 
+  
+  
+  names(samples) = gsub(".*\\/","",gsub("\\.h5","",samples))
+  
   if(length(setdiff(metadata$Sample, names(samples)))>0){
     if(sum(! names(samples) %in% metadata$Sample)>0){
       warning("Samples ",paste(names(samples)[! names(samples) %in% metadata$Sample],collapse = ", "),
@@ -10,13 +14,12 @@ load_h5 = function(samples, metadata, join_layers = TRUE,
     }
     if(sum(! metadata$Sample %in% names(samples))>0){
       warning("No data files found for sample ",
-              paste(metadata$Sample[! metadata$Sample %in% names(samples))],
-                    collapse = ", ")
-      metadata = metadata[metadata$Sample %in% names(samples)]
+              paste(metadata$Sample[! metadata$Sample %in% names(samples)],
+                    collapse = ", "))
+      metadata = metadata[metadata$Sample %in% names(samples),]
     }
   }
   
-  names(samples) = gsub(".*\\/","",gsub("\\.h5","",samples))
   
   sample_list = lapply(samples, function(sample){
     CreateSeuratObject(Read10X_h5(sample),
