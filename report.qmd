@@ -42,6 +42,16 @@ source("R/themes.R")
 ```
 
 
+```{r}
+
+# Enables changing targets directory
+tar_config_set(script = "_targets.R", store = "_targets", project = "main")
+Sys.setenv(TAR_PROJECT = "main")
+
+
+```
+
+
 
 # Study description
 
