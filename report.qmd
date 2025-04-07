@@ -42,14 +42,6 @@ source("R/themes.R")
 ```
 
 
-```{r}
-
-# Enables changing targets directory
-tar_config_set(script = "_targets.R", store = "_targets", project = "main")
-Sys.setenv(TAR_PROJECT = "main")
-
-
-```
 
 
 
@@ -74,13 +66,25 @@ Documentation about the package can be found [here](https://books.ropensci.org/t
 The workflow is checked and rerun if necessary using the command `tar_make()` or `tar_make_future()` (the latter enables parallelization).
 
 
-```{r, results = "hide"}
-
+```{r}
 library(Seurat)
 library(targets)
 library(clustree)
 library(dplyr)
+```
 
+
+
+```{r}
+
+# Enables changing targets directory
+tar_config_set(script = "_targets.R", store = "_targets", project = "main")
+Sys.setenv(TAR_PROJECT = "main")
+
+
+```
+
+```{r, results = "hide"}
 tar_make_future()
 
 ```
