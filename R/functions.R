@@ -239,7 +239,7 @@ findDoublets = function(obj){
     obj$gemWell = obj$orig.ident
   }
   
-  if(length(unique(obj$gemWell)>1){
+  if(length(unique(obj$gemWell))>1){
     obj.list = SplitObject(obj, split.by = "gemWell")
   }else{
     obj.list = list(obj)
