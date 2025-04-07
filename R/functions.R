@@ -239,7 +239,13 @@ findDoublets = function(obj){
     obj$gemWell = obj$orig.ident
   }
   
-  df.list = future_lapply(SplitObject(obj, split.by = "gemWell"), function(x){
+  if(length(unique(obj$gemWell)>1){
+    obj.list = SplitObject(obj, split.by = "gemWell")
+  }else{
+    obj.list = list(obj)
+  }
+  
+  obj.list = future_lapply(obj.list, function(x){
     x = NormalizeData(x)
     x = FindVariableFeatures(x)
     x = ScaleData(x, vars.to.regress = c("nFeature_RNA", "percent.mito"))
