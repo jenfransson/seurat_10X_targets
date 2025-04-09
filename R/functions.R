@@ -310,7 +310,7 @@ removeDoublets = function(obj){
 }
 
 
-integrate_obj = function(obj, join_layers, split_group){
+integrate_obj = function(obj, join_layers, split_group, int_params){
   if(! split_group %in% colnames(obj@meta.data)){
     stop("split_group must be a column name in obj@meta.data")
   }
@@ -327,12 +327,14 @@ integrate_obj = function(obj, join_layers, split_group){
                                 nfeatures = 2000, verbose = FALSE)
     })
     
-    data.anchors <- FindIntegrationAnchors(object.list = obj, 
-                                           dims = 1:30, reduction = "cca")
+    
+    data.anchors <- rlang::invoke(FindIntegrationAnchors, 
+                                  c(list(object.list = obj), int_params$anchor_params))
     rm(obj)
     gc()
     
-    obj <- IntegrateData(anchorset = data.anchors, dims = 1:30, new.assay.name = "CCA")
+    obj <- rlang::invoke("IntegrateData", c(list(anchorset = data.anchors),
+                                      int_params$int_function_params))
     
     rm(data.anchors)
     gc()
@@ -348,10 +350,10 @@ integrate_obj = function(obj, join_layers, split_group){
     obj <- ScaleData(obj)
     obj <- RunPCA(obj)
     
-    obj <- IntegrateLayers(
-      object = obj, method = CCAIntegration,
-      orig.reduction = "pca", new.reduction = "integrated.cca",
-      verbose = FALSE
+    obj <- rlang::invoke(IntegrateLayers, 
+                         c(list(
+                           object = obj, verbose = FALSE),
+                           int_params)
     )
   }
   obj

@@ -113,6 +113,18 @@ getparams =
       "Sample"
     ),
     tar_target(
+      int_params,
+      
+      # Structure when load_joinlayers = TRUE
+      list(anchor_params = list(dims = 1:30, reduction = "cca"),
+           int_function_params = list(dims = 1:30, new.assay.name = "CCA")
+           )
+      # Structure whejn load_joinlayers = FALSE
+      # list(method = CCAIntegration,
+      #      orig.reduction = "pca",
+      #      new.reduction = "integrated.cca")
+    ),
+    tar_target(
       int_umap_nn,
       30
       ## Seurat default: 30

@@ -14,7 +14,7 @@ library(targets)
 
 # Set target options:
 tar_option_set(
-  packages = c("tibble", "Seurat", "ggplot2", "dplyr", "tidyr","future.apply", "DoubletFinder"),  # Packages that your targets need for their tasks.
+  packages = c("tibble", "Seurat", "ggplot2", "dplyr", "tidyr","future.apply", "DoubletFinder","rlang"),  # Packages that your targets need for their tasks.
   controller = crew::crew_controller_local(workers = 2, seconds_idle = 60),
   trust_timestamps = TRUE
 )
@@ -168,7 +168,7 @@ c(getparams,
       obj_tmp = moveReduction(obj_tmp, "pca", "pca_nonint", "pcanonint_")
       obj_tmp = moveReduction(obj_tmp, "umap", "umap_nonint", "umapnonint_")
       
-      obj_int = integrate_obj(obj_tmp, load_joinlayers, int_split)
+      obj_int = integrate_obj(obj_tmp, load_joinlayers, int_split, int_params)
       
       if(load_joinlayers){
         obj_int@reductions[["pca_nonint"]] = obj_tmp@reductions[["pca_nonint"]]
