@@ -318,44 +318,23 @@ integrate_obj = function(obj, join_layers, split_group, int_params){
     stop(paste0("obj has only one value of split_group parameter ", split_group, ". Either change split_group to a column name with multiple values, or skip integration by setting run_int = FALSE"))
   }
   
-  if(join_layers){
-    obj = SplitObject(obj, split_group)
-    
-    obj = lapply(obj, function(x){
-      x <- NormalizeData(x, verbose = FALSE)
-      x <- FindVariableFeatures(x, selection.method = "vst",
-                                nfeatures = 2000, verbose = FALSE)
-    })
-    
-    
-    data.anchors <- rlang::invoke(FindIntegrationAnchors, 
-                                  c(list(object.list = obj), int_params$anchor_params))
-    rm(obj)
-    gc()
-    
-    obj <- rlang::invoke("IntegrateData", c(list(anchorset = data.anchors),
-                                      int_params$int_function_params))
-    
-    rm(data.anchors)
-    gc()
-    
-  }else{
-    
-    obj = JoinLayers(obj)
 
-    obj[[obj@active.assay]] <- split(obj[[obj@active.assay]], f = obj@meta.data[[split_group]])
-    
-    obj <- NormalizeData(obj)
-    obj <- FindVariableFeatures(obj)
-    obj <- ScaleData(obj)
-    obj <- RunPCA(obj)
-    
-    obj <- rlang::invoke(IntegrateLayers, 
-                         c(list(
-                           object = obj, verbose = FALSE),
-                           int_params)
-    )
+  if(!join_layers){
+    obj = JoinLayers(obj)
   }
+
+  obj[[obj@active.assay]] <- split(obj[[obj@active.assay]], f = obj@meta.data[[split_group]])
+  
+  obj <- FindVariableFeatures(obj)
+  obj <- ScaleData(obj)
+  obj <- RunPCA(obj)
+  
+  obj <- rlang::invoke(IntegrateLayers, 
+                       c(list(
+                         object = obj),
+                         int_params)
+  )
+  
   obj
 }
 
