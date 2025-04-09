@@ -29,7 +29,7 @@ tar_source()
 
 
 # Replace the target list below with your own:
-c(getparams(),
+c(getparams,
   list(
   tar_target(
     name = data_list,

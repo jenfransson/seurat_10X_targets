@@ -1,4 +1,4 @@
-getparams = function(){
+getparams = 
   list(
   
     # Parameters for loading data
@@ -180,4 +180,3 @@ getparams = function(){
       # Seurat default FALSE
     )
   )
-}
