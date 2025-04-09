@@ -77,8 +77,9 @@ library(dplyr)
 
 ```{r}
 
-# Enables changing targets directory
-tar_config_set(script = "_targets.R", store = "_targets", project = "main")
+# Enables changing targets directory (Use tar_config_set to set up new project), e.g.
+# tar_config_set(script = "_targets.R", store = "_targets", project = "main")
+
 Sys.setenv(TAR_PROJECT = "main")
 
 
