@@ -218,16 +218,18 @@ tar_read(cc_violin)
 
 ```{r}
 
-DFmessage = "Doublet removal was not performed."
 
 if(tar_read(qc_runDF)){
-  DFmessage = 'In droplet-based sequencing, a number of droplets containing more than one cell is expected. In order to predict which "cells" in the dataset are actually composed of more than one cell, the package [DoubletFinder](https://github.com/chris-mcginnis-ucsf/DoubletFinder) is used. Doublet cells are then removed from the dataset.
+  DFmessage = 'In droplet-based sequencing, a number of droplets containing more than one cell is expected. In order to predict which "cells" in the dataset are actually composed of more than one cell, the package [DoubletFinder](https://github.com/chris-mcginnis-ucsf/DoubletFinder) is used. Doublet cells are then removed from the dataset. To inform how many doublets could be expected, the column expectedCells in the metadata was used."
 
 To evaluate whether the doublet prediction worked well, we look at two plots:
 
 1. A preliminary UMAP in which doublets are indicated (doublets are likely to be found between clusters)
 
 2. A violin plot showing the distribution of number of unique features per cell, split by predicted doublets and singlets in each sample (on average, doublets have a higher number of unique genes)'
+}else{
+  DFmessage = "Doublet removal was not performed."
+
 }
 
 ```
