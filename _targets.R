@@ -63,7 +63,7 @@ c(getparams,
   ),
   tar_target(
     name = obj_filt,
-    command = filter_obj(obj_orig, qc_filt_rules, qc_minCells)
+    command = filter_obj(obj_orig, qc_filt_rules, qc_minCells, qc_geneselection)
   ),
   tar_target(
     name = qc_filtered_vln,
@@ -80,7 +80,7 @@ c(getparams,
   ),
   tar_target(
     obj_filt2,
-    remove_genes(obj_filt,patterns = qc_genePatternsToRemove,genes = qc_genesToRemove)
+    remove_genes(obj_filt, patterns = qc_genePatternsToRemove, genes = qc_genesToRemove)
   ),
   tar_target(
     obj_filt2_meta,

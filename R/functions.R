@@ -107,7 +107,11 @@ qc_vln = function(obj, qc_groupby, qc_plotvars, thresholds = list(), pt.size = 0
   addColors(vp, scale_type = "fill")
 }
 
-filter_obj = function(obj, qc_filt_rules,qc_minCells){
+filter_obj = function(obj, qc_filt_rules,qc_minCells, qc_geneselection = NULL){
+  
+  if(!is.null(qc_geneselection)){
+    obj = subset(obj, features = qc_geneselection)
+  }
   
   em = FetchData(obj, Features(obj))>0
   
