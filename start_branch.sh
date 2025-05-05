@@ -17,6 +17,8 @@ fi
 
 
 rsync -av -f"+ */" -f"- *" $par_tar/ _targets_$1/
-
+ln -s $par_tar/objects/* _targets_$1/objects/
+ln -s $par_tar/meta/* _targets_$1/meta/
+ln -s $par_tar/workspaces/* _targets_$1/workspaces/
 
 
