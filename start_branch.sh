@@ -8,5 +8,6 @@ Rscript -e 'library(targets);tar_config_set(script = "_targets.R", store = "_tar
 sed -i '' 's/TAR_PROJECT = "main"/TAR_PROJECT = "'$1'"/g' report.qmd
 
 
+rsync -av -f"+ */" -f"- *" _targets/ _targets_$1/
 
 
