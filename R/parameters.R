@@ -52,7 +52,7 @@ getparams =
     ),
     tar_target(
       name = qc_geneselection,
-      command = if(file.exists("data/genes.csv")){read.csv("data/genes.csv")}else{NULL}
+      command = if(file.exists("data/genes.csv")){read.csv("data/genes.csv")[,1]}else{NULL}
     ),
     tar_target(
       name = qc_maxCellsTopExpr,
