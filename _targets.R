@@ -22,13 +22,10 @@ tar_option_set(
 options(future.globals.maxSize= 10^10)
 
 
-
 # Run the R scripts in the R/ folder with your custom functions:
 tar_source()
-# tar_source("other_functions.R") # Source other scripts as needed.
 
 
-# Replace the target list below with your own:
 c(getparams,
   list(
   tar_target(
@@ -63,7 +60,7 @@ c(getparams,
   ),
   tar_target(
     name = obj_filt,
-    command = filter_obj(obj_orig, qc_filt_rules, qc_minCells, qc_geneselection)
+    command = filter_obj(obj_orig, qc_filt_rules, qc_minCells)
   ),
   tar_target(
     name = qc_filtered_vln,
@@ -141,23 +138,23 @@ c(getparams,
     obj_normalized,
     if(dimred_sct){
       SCTransform(obj_filt_final, vars.to.regress = dimred_varstoregress, 
-                  variable.features.n = dimred_nHVG)
+                  variable.features.n = dimred_nHVG) %>% removeTimeStamps()
     }else{
-      NormalizeData(obj_filt_final) %>%
-        FindVariableFeatures(nfeatures = dimred_nHVG) %>%
-        ScaleData(vars.to.regress = dimred_varstoregress)
+      NormalizeData(obj_filt_final) %>% removeTimeStamps()
     }
   ),
   tar_target(
     obj_pca,
-    RunPCA(obj_normalized)
+    run_pca(obj_normalized, dimred_sct, dimred_nHVG, 
+            dimred_varstoregress, dimred_pca_parameters)
   ),
   tar_target(
     obj_pca_umap,
     RunUMAP(obj_pca, n.neighbors = dimred_umap_nn,
             n.components= dimred_umap_ncomp,
             min.dist = dimred_umap_mindist,
-            dims = dimred_umap_dims)
+            dims = dimred_umap_dims) %>%
+      removeTimeStamps()
   ),
   tar_target(
     obj_int,
@@ -180,7 +177,8 @@ c(getparams,
         obj_int <- RunPCA(obj_int, npcs = 30, verbose = FALSE)
       }
       
-      obj_int
+      obj_int %>%
+        removeTimeStamps()
       
     }
   ),
@@ -194,14 +192,16 @@ c(getparams,
                 n.neighbors = int_umap_nn,
                 n.components= int_umap_ncomp,
                 min.dist = int_umap_mindist,
-                dims = int_umap_dims)
+                dims = int_umap_dims) %>%
+          removeTimeStamps()
       }else{
         RunUMAP(obj_int,
                 reduction = "pca",
                 n.neighbors = int_umap_nn,
                 n.components= int_umap_ncomp,
                 min.dist = int_umap_mindist,
-                dims = int_umap_dims)
+                dims = int_umap_dims) %>%
+          removeTimeStamps()
       }
     }
     
@@ -214,7 +214,8 @@ c(getparams,
       }else{
         obj_tmp = obj_pca_umap
       }
-      runClustering(obj_tmp, clus_reduction, clus_resolutions, clus_dims)
+      runClustering(obj_tmp, clus_reduction, clus_resolutions, clus_dims) %>%
+        removeTimeStamps()
     }
   ),
   tar_target(

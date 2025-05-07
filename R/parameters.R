@@ -51,10 +51,6 @@ getparams =
       command = 10
     ),
     tar_target(
-      name = qc_geneselection,
-      command = if(file.exists("data/genes.csv")){read.csv("data/genes.csv")[,1]}else{NULL}
-    ),
-    tar_target(
       name = qc_maxCellsTopExpr,
       command = NULL
     ),
@@ -85,6 +81,10 @@ getparams =
       dimred_nHVG,
       2000
       ## Seurat default: 2000
+    ),
+    tar_target(
+      name = dimred_pca_parameters,
+      command = NULL
     ),
     tar_target(
       dimred_umap_nn,

@@ -107,11 +107,7 @@ qc_vln = function(obj, qc_groupby, qc_plotvars, thresholds = list(), pt.size = 0
   addColors(vp, scale_type = "fill")
 }
 
-filter_obj = function(obj, qc_filt_rules,qc_minCells, qc_geneselection = NULL){
-  
-  if(!is.null(qc_geneselection)){
-    obj = subset(obj, features = qc_geneselection)
-  }
+filter_obj = function(obj, qc_filt_rules,qc_minCells){
   
   em = FetchData(obj, Features(obj))>0
   
@@ -341,6 +337,36 @@ integrate_obj = function(obj, join_layers, split_group, int_params){
   
   obj
 }
+
+
+removeTimeStamps = function(obj){
+  for(i in names(obj@commands)){
+    obj@commands[[i]]@time.stamp = as.POSIXct(0)
+  }
+  obj
+}
+
+run_pca = function(obj_normalized, dimred_sct, dimred_nHVG, dimred_varstoregress, dimred_pca_parameters){
+  if(!dimred_sct){
+    if(! "features" %in% names(dimred_pca_parameters)){
+      obj = obj_normalized %>%
+        FindVariableFeatures(nfeatures = dimred_nHVG) %>%
+        ScaleData(vars.to.regress = dimred_varstoregress)
+    }else{
+      obj = obj_normalized %>%
+        ScaleData(vars.to.regress = dimred_varstoregress,
+                  features = dimred_pca_parameters$features)
+    }
+  }
+  rlang::invoke(RunPCA, 
+                c(list(
+                  object = obj),
+                  dimred_pca_parameters)
+  ) %>%
+    removeTimeStamps()
+}
+
+
 
 
 moveReduction = function(obj, oldname, newname, newkey){
