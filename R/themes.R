@@ -8,7 +8,11 @@ violintheme = function(){
 
 addColors = function(plot, scale_type = "colour", layer = NULL){
   if(!exists("get_color_list")){
-    source("https://raw.githubusercontent.com/jenfransson/r_resources/refs/heads/main/code/color_list.R")
+    if(RCurl::url.exists("https://raw.githubusercontent.com/jenfransson/r_resources/refs/heads/main/code/color_list.R")){
+      source("https://raw.githubusercontent.com/jenfransson/r_resources/refs/heads/main/code/color_list.R")
+    }else{
+      source("backup/color_list.R")
+    }
   }
     if(is.null(layer)){
       if(! scale_type %in% names(plot$mapping))

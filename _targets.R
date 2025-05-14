@@ -14,7 +14,9 @@ library(targets)
 
 # Set target options:
 tar_option_set(
-  packages = c("tibble", "Seurat", "ggplot2", "dplyr", "tidyr","future.apply", "DoubletFinder","rlang"),  # Packages that your targets need for their tasks.
+  packages = c("tibble", "Seurat", "ggplot2", "dplyr", "tidyr","future.apply", "DoubletFinder","rlang"
+               ,"RCurl" # Needed for url.exists
+               ),  # Packages that your targets need for their tasks.
   controller = crew::crew_controller_local(workers = 2, seconds_idle = 60),
   trust_timestamps = TRUE
 )
