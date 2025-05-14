@@ -167,7 +167,7 @@ c(getparams,
       obj_tmp = moveReduction(obj_tmp, "pca", "pca_nonint", "pcanonint_")
       obj_tmp = moveReduction(obj_tmp, "umap", "umap_nonint", "umapnonint_")
       
-      obj_int = integrate_obj(obj_tmp, load_joinlayers, int_split, int_params)
+      obj_int = integrate_obj(obj_tmp, load_joinlayers, int_split, int_parameters)
       
       if(load_joinlayers){
         obj_int@reductions[["pca_nonint"]] = obj_tmp@reductions[["pca_nonint"]]

@@ -117,7 +117,7 @@ getparams =
       "Sample"
     ),
     tar_target(
-      int_params,
+      int_parameters,
       
       list(method = CCAIntegration,
           orig.reduction = "pca",
