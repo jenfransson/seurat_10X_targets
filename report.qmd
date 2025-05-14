@@ -573,8 +573,9 @@ top3 = unique(tar_read(cluster_de)$de_res %>%
     pull(gene))
 
 
+obj_clus@active.assay = "RNA"
 addColors(VlnPlot(obj_clus, group.by = "Cluster",
-        features = top3, pt.size = 0, assay = "RNA") &
+        features = top3, pt.size = 0) &
   violintheme(), scale_type = "fill")
 
 ```
