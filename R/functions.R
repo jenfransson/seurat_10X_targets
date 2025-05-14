@@ -349,18 +349,18 @@ removeTimeStamps = function(obj){
 run_pca = function(obj_normalized, dimred_sct, dimred_nHVG, dimred_varstoregress, dimred_pca_parameters){
   if(!dimred_sct){
     if(! "features" %in% names(dimred_pca_parameters)){
-      obj = obj_normalized %>%
+      obj_normalized = obj_normalized %>%
         FindVariableFeatures(nfeatures = dimred_nHVG) %>%
         ScaleData(vars.to.regress = dimred_varstoregress)
     }else{
-      obj = obj_normalized %>%
+      obj_normalized = obj_normalized %>%
         ScaleData(vars.to.regress = dimred_varstoregress,
                   features = dimred_pca_parameters$features)
     }
   }
   rlang::invoke(RunPCA, 
                 c(list(
-                  object = obj),
+                  object = obj_normalized),
                   dimred_pca_parameters)
   ) %>%
     removeTimeStamps()
