@@ -241,7 +241,8 @@ c(getparams,
       top10 = cluster_de$de_res %>% 
         group_by(cluster) %>%
         filter(p_val_adj < 0.05) %>%
-        slice_min(p_val_adj, n = 10)
+        slice_min(p_val_adj, n = 10) %>%
+        slice_max(abs(avg_log2FC), n = 10)
       top10$gene = factor(top10$gene, levels = sort(unique(top10$gene), decreasing = TRUE))
       ggplot(
         top10,
