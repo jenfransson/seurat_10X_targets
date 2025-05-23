@@ -316,7 +316,24 @@ tar_load(obj_pca_umap)
 
 ## PCA
 
-Dimensional reduction was performed using PCA. To do this, the top `r tar_read(dimred_nHVG)` most variable features were used. They are visualized below (in red), showing the mean expression and standardized variance for each gene. The top 20 genes are labeled.
+```{r}
+
+tar_load(dimred_pca_parameters)
+
+if(length(dimred_pca_parameters)>0){
+  pca_par_used = TRUE
+  if(!is.null(dimred_pca_parameters$features)){
+    pca_feature_text = "a custom list of genes."
+  }
+}
+if(!exists("pca_feature_text")){
+  pca_feature_text = paste0("the top ",tar_read(dimred_nHVG)," most variable features.")
+}
+
+```
+
+
+Dimensional reduction was performed using PCA based on `r pca_feature_text` They are visualized below (in red), showing the mean expression and standardized variance for each gene. The top 20 genes are labeled.
 
 `r HVGmessage`
 

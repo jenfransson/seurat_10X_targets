@@ -353,6 +353,7 @@ run_pca = function(obj_normalized, dimred_sct, dimred_nHVG, dimred_varstoregress
         FindVariableFeatures(nfeatures = dimred_nHVG) %>%
         ScaleData(vars.to.regress = dimred_varstoregress)
     }else{
+      VariableFeatures(obj_normalized) = dimred_pca_parameters$features
       obj_normalized = obj_normalized %>%
         ScaleData(vars.to.regress = dimred_varstoregress,
                   features = dimred_pca_parameters$features)
