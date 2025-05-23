@@ -368,6 +368,36 @@ run_pca = function(obj_normalized, dimred_sct, dimred_nHVG, dimred_varstoregress
 }
 
 
+myVarFeatPlot = function(obj_pca){
+  cols = c("black","red")
+  varp = VariableFeaturePlot(obj_pca, cols = cols)
+  varp$data$colors = "no"
+  varp$data$colors[rownames(varp$data) %in% VariableFeatures(obj_pca)] = "yes"
+  
+  # yesval = paste0("Variable count: ",table(varp$data$colors)[["yes"]])
+  # noval = paste0("Non-variable count: ",table(varp$data$colors)[["no"]])
+  
+  if (length(x = unique(x = varp$data$colors)) == 1) {
+    switch(EXPR = varp$data$colors[1], yes = {
+      cols <- cols[2]
+      labels.legend <- "Variable"
+    }, no = {
+      cols <- cols[1]
+      labels.legend <- "Non-variable"
+    })
+  }  else {
+    labels.legend <- c("Non-variable", "Variable")
+  }
+  
+  varp$data = varp$data[order(varp$data$colors),]
+  
+  varp <- varp + 
+    scale_color_manual(labels = paste(labels.legend, "count:", 
+                                      table( varp$data$colors)), values = cols)
+  
+  varp
+  
+}
 
 
 moveReduction = function(obj, oldname, newname, newkey){

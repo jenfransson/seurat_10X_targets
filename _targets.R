@@ -159,6 +159,10 @@ c(getparams,
       removeTimeStamps()
   ),
   tar_target(
+    dimred_varfeat_plot,
+    myVarFeatPlot(obj_pca)
+  ),
+  tar_target(
     obj_int,
     if(run_int){
       

@@ -340,7 +340,7 @@ Dimensional reduction was performed using PCA based on `r pca_feature_text` They
 ```{r}
 top20 <- head(VariableFeatures(obj_pca_umap), 20)
 
-LabelPoints(plot = VariableFeaturePlot(obj_pca_umap), points = top20, repel = TRUE)
+LabelPoints(plot = tar_read(dimred_varfeat_plot), points = top20, repel = TRUE)
 ```
 
 
