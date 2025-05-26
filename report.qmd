@@ -586,7 +586,9 @@ Expression of the top 3 DEGs per cluster (based on p-value) are shown in across 
 
 top3 = unique(tar_read(cluster_de)$de_res %>%
   group_by(cluster) %>%
+        filter(p_val_adj < 0.05) %>%
   slice_min(order_by = p_val_adj, n = 3) %>%
+  slice_max(order_by = avg_log2FC, n = 3) %>%
     pull(gene))
 
 
