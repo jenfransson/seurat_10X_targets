@@ -244,7 +244,7 @@ c(getparams,
         slice_min(p_val_adj, n = 10) %>%
         slice_max(abs(avg_log2FC), n = 10)
       top10$gene = factor(top10$gene, levels = sort(unique(top10$gene), decreasing = TRUE))
-      top10$p_val_adj[top10$p_val_adj == 0] = min(2.2e-16, min(top10$p_val_adj))
+      top10$p_val_adj[top10$p_val_adj == 0] = min(2.2e-16, min(top10$p_val_adj[top10$p_val_adj>0]))
       ggplot(
         top10,
         aes(y = gene, x = avg_log2FC,
