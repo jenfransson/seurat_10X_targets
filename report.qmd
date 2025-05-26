@@ -580,10 +580,9 @@ tar_read(cluster_de_barplot)
 ```
 
 
-Expression of the top 3 DEGs per cluster (based on p-value) are shown in across clusters in violin plots.
+Expression of the top 3 DEGs per cluster (based on p-value) are shown in across clusters in a dot plot and violin plots.
 
-```{r, fig.height=7, fig.width=7}
-
+```{r}
 top3 = unique(tar_read(cluster_de)$de_res %>%
   group_by(cluster) %>%
         filter(p_val_adj < 0.05) %>%
@@ -593,6 +592,20 @@ top3 = unique(tar_read(cluster_de)$de_res %>%
 
 
 obj_clus@active.assay = "RNA"
+
+```
+
+
+```{r, fig.height=5, fig.width=5}
+DotPlot(obj_clus, features = rev(unique(top3)), group.by = "Cluster") + coord_flip() + 
+  theme(axis.text.y = element_text(face = "italic")) +
+  labs(x = "Cluster") +
+  dottheme()
+
+```
+
+
+```{r, fig.height=7, fig.width=7}
 addColors(VlnPlot(obj_clus, group.by = "Cluster",
         features = top3, pt.size = 0) &
   violintheme(), scale_type = "fill")

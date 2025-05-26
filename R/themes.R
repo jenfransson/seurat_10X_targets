@@ -5,6 +5,13 @@ violintheme = function(){
         axis.title = element_text(size = 8))
 }
 
+dottheme = function(){
+  theme(axis.text = element_text(size = 10),
+        legend.title = element_text(size = 10),
+        legend.text = element_text(size = 10),
+        axis.title = element_text(size = 10))
+}
+
 
 addColors = function(plot, scale_type = "colour", layer = NULL){
   if(!exists("get_color_list")){
